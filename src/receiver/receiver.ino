@@ -3,15 +3,13 @@
 #include <SPI.h>
 
 
-RF24 radio(7,8);                // nRF24L01(+) radio attached using Getting Started board 
+RF24 radio(7, 8);               // nRF24L01(+) radio attached using Getting Started board
 
 RF24Network network(radio);      // Network uses that radio
 const uint16_t this_node = 00;    // Address of our node in Octal format ( 04,031, etc)
 const uint16_t other_node = 01;   // Address of the other node in Octal format
 
-struct payload_t {                 // Structure of our payload
-  unsigned long ms;
-  unsigned long counter;
+struct payload_t {
   int mes;
 };
 
@@ -49,33 +47,33 @@ void setup(void)
   rightLast = digitalRead(4);
   leftCounter = 0;
   rightCounter = 0;
-  
+
   Serial.begin(115200);
   Serial.println("RF24Network/examples/helloworld_rx/");
- 
+
   SPI.begin();
   radio.begin();
   network.begin(/*channel*/ 90, /*node address*/ this_node);
 }
 
-void loop(void){
-  
+void loop(void) {
+
   network.update();                  // Check the network regularly
 
-  
+
   while ( network.available() ) {     // Is there anything ready for us?
-    
+
     RF24NetworkHeader header;        // If so, grab it and print it out
     payload_t payload;
-    network.read(header,&payload,sizeof(payload));
-    Serial.print(payload.mes);
+    network.read(header, &payload, sizeof(payload));
+    Serial.println(payload.mes);
     mesage = payload.mes;
   }
   drive((int)mesage);
 }
 
-void drive(int steer){
-    if (digitalRead(3) != leftLast) {
+void drive(int steer) {
+  if (digitalRead(3) != leftLast) {
     leftCounter += 1;
     leftLast = !leftLast;
   }
@@ -89,6 +87,8 @@ void drive(int steer){
   int rightStp = 0;
   int leftStp = 0;
   float potent = steer - 512;
+  //Serial.println(steer);
+  //Serial.println(potent);
 
   float steerMultiplierL = 1;
   float steerMultiplierR = 1;
@@ -96,7 +96,7 @@ void drive(int steer){
   if (potent >= -20 and potent <= 20) {
     if (rightCorrection > 0) {
       rightStp = wheelStp;
-    } 
+    }
     else if (rightCorrection < 0) {
       leftStp = wheelStp;
     } else if (rightCorrection == 0) {
@@ -106,11 +106,11 @@ void drive(int steer){
   } else {
     leftStp = 0;
     rightStp = 0;
-    if(potent < -20){
-      steerMultiplierR = 1-((-potent/512));
+    if (potent < -20) {
+      steerMultiplierR = 1 - ((-potent / 512));
       steerMultiplierL = 1;
     } else {
-      steerMultiplierL = 1-((potent/512));
+      steerMultiplierL = 1 - ((potent / 512));
       steerMultiplierR = 1;
     }
   }
