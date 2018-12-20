@@ -88,13 +88,9 @@ void drive(int steer){
 
   rightCorrection = (leftCounter * leftCirc - rightCounter * rightCirc);
 
-  //Serial.println((analogRead(A4) - 511));
-  //rightCorrection = *steerStrength;
-
-
   int rightStp = 0;
   int leftStp = 0;
-  float potent = analogRead(A4) - 512;
+  float potent = steer - 512;
 
   float steerMultiplierL = 1;
   float steerMultiplierR = 1;
@@ -129,7 +125,7 @@ void drive(int steer){
 
   if (directionForward == true) {
     analogWrite(5, 0);
-    analogWrite(6, (255 - leftStp) * steerMultiplierR); //(((float)analogRead(A4)-512)/512);
+    analogWrite(6, (255 - leftStp) * steerMultiplierR);
     analogWrite(9, 0);
     analogWrite(10, (255 - rightStp) * steerMultiplierL);
   } else {
