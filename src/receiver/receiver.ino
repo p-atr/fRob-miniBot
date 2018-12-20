@@ -31,6 +31,7 @@ float steerStrength = 0.5;
 const int wheelStp = 155;
 
 bool directionForward = true;
+int mesage = 0;
 
 void setup(void)
 {
@@ -67,13 +68,10 @@ void loop(void){
     RF24NetworkHeader header;        // If so, grab it and print it out
     payload_t payload;
     network.read(header,&payload,sizeof(payload));
-    //Serial.print("Received packet #");
-    //Serial.print(payload.counter);
-    //Serial.print(" at ");
-    //Serial.println(payload.ms);
     Serial.print(payload.mes);
-    drive((int)payload.mes);
+    mesage = payload.mes;
   }
+  drive((int)mesage);
 }
 
 void drive(int steer){
@@ -117,11 +115,6 @@ void drive(int steer){
     }
   }
 
-
-  //Serial.println(rightCounter);
-  //Serial.println(rightCorrection);
-  //Serial.println(potent);
-  //Serial.println(1-abs(potent/512));
 
   if (directionForward == true) {
     analogWrite(5, 0);
