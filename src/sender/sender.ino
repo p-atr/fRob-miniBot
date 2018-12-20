@@ -9,55 +9,62 @@
  */
 
 /**
- * Simplest possible example of using RF24Network,
+ * Simplest possible example of using RF24Network 
  *
- * RECEIVER NODE
- * Listens for messages from the transmitter and prints them out.
+ * TRANSMITTER NODE
+ * Every 2 seconds, send a payload to the receiver node.
  */
 
 #include <RF24Network.h>
 #include <RF24.h>
 #include <SPI.h>
 
+RF24 radio(7,8);                    // nRF24L01(+) radio attached using Getting Started board 
 
-RF24 radio(7,8);                // nRF24L01(+) radio attached using Getting Started board 
+RF24Network network(radio);          // Network uses that radio
 
-RF24Network network(radio);      // Network uses that radio
-const uint16_t this_node = 00;    // Address of our node in Octal format ( 04,031, etc)
-const uint16_t other_node = 01;   // Address of the other node in Octal format
+const uint16_t this_node = 01;        // Address of our node in Octal format
+const uint16_t other_node = 00;       // Address of the other node in Octal format
 
-struct payload_t {                 // Structure of our payload
+const unsigned long interval = 1000; //ms  // How often to send 'hello world to the other unit
+
+unsigned long last_sent;             // When did we last send?
+unsigned long packets_sent;          // How many have we sent already
+
+
+struct payload_t {                  // Structure of our payload
   unsigned long ms;
   unsigned long counter;
   char mes[2];
 };
 
-
 void setup(void)
 {
   Serial.begin(115200);
-  Serial.println("RF24Network/examples/helloworld_rx/");
+  Serial.println("RF24Network/examples/helloworld_tx/");
  
   SPI.begin();
   radio.begin();
   network.begin(/*channel*/ 90, /*node address*/ this_node);
 }
 
-void loop(void){
+void loop() {
   
-  network.update();                  // Check the network regularly
+  network.update();                          // Check the network regularly
 
   
-  while ( network.available() ) {     // Is there anything ready for us?
-    
-    RF24NetworkHeader header;        // If so, grab it and print it out
-    payload_t payload;
-    network.read(header,&payload,sizeof(payload));
-    Serial.print("Received packet #");
-    Serial.print(payload.counter);
-    Serial.print(" at ");
-    Serial.println(payload.ms);
-    Serial.print(payload.mes[0]);
-    Serial.println(payload.mes[1]);
+  unsigned long now = millis();              // If it's time to send a message, send it!
+  if ( now - last_sent >= interval  )
+  {
+    last_sent = now;
+
+    Serial.print("Sending...");
+    payload_t payload = { millis(), packets_sent++, {'a','b'}};
+    RF24NetworkHeader header(/*to node*/ other_node);
+    bool ok = network.write(header,&payload,sizeof(payload));
+    if (ok)
+      Serial.println("ok.");
+    else
+      Serial.println("failed.");
   }
 }
