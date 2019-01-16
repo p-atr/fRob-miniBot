@@ -1,3 +1,5 @@
+const int baud = 115200;
+
 #include "Wire.h"
 #include "veml6040.h"
 VEML6040 RGBWSensor;
@@ -11,12 +13,7 @@ void veml_setup() {
   RGBWSensor.setConfiguration(VEML6040_IT_320MS + VEML6040_AF_AUTO + VEML6040_SD_ENABLE);
 }
 
-void setup() {
-  Serial.begin(9600);
-  veml_setup();
-}
-
-void loop() {
+void veml() {
   long r = RGBWSensor.getRed()/256;
   long g = RGBWSensor.getGreen()/256;
   long b = RGBWSensor.getBlue()/256;
@@ -28,5 +25,13 @@ void loop() {
   } else{
     Serial.println("Stay");
   }
+}
 
+void setup() {
+  Serial.begin(baud);
+  veml_setup();
+}
+
+void loop() {
+  veml();
 }
