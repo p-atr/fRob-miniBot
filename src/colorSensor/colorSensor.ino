@@ -13,6 +13,7 @@ void veml_setup() {
 
 void setup() {
   Serial.begin(9600);
+  veml_setup();
 }
 
 void loop() {
