@@ -10,13 +10,11 @@ The complete control-program for our robots.
 
 ### Prerequisites
 
-Install all libraries from the librarie folder
+Install all libraries from the libraries folder
 
 ## Built With
 
-* [Dropwizard](http://www.dropwizard.io/1.0.2/docs/) - The web framework used
-* [Maven](https://maven.apache.org/) - Dependency Management
-* [ROME](https://rometools.github.io/rome/) - Used to generate RSS Feeds
+* [RF24Network](http://maniacbug.github.com/RF24Network/index.html)
 
 ## Authors
 
