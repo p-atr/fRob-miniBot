@@ -24,7 +24,8 @@ const float rightCirc = 22.8; //22.8
 float steerStrength = 0.5;
 const int wheelStp = 155;
 bool directionForward = true;
-int autoSteerStrength = 2;
+float maxSpeedMultiplier = 0.7;
+long whiteMin = 60000;
 
 bool leftLast;
 bool rightLast;
@@ -37,8 +38,6 @@ int rightCorrection;
 long r = 0;
 long g = 0;
 long b = 0;
-
-int colorMultiplier = 256/autoSteerStrength;
 
 void setup(void)
 {
@@ -65,7 +64,7 @@ void setup(void)
   SPI.begin();
   radio.begin();
   network.begin(/*channel*/ 90, /*node address*/ this_node);
-  
+
   veml_setup();
 }
 
@@ -92,30 +91,38 @@ void loop(void) {
     manualSteerDirection = payload.mes;
   }
   if (manualSteering == true) {
-    drive((int)manualSteerDirection - 512);
+    driveCurve((int)(manualSteerDirection - 512) / 2);
   } else {
-    drive(autoSteering());
+    autoSteering();
   }
 }
 
-int autoSteering () {
+void autoSteering () {
 
-  r = RGBWSensor.getRed() / colorMultiplier;
-  g = RGBWSensor.getGreen() / colorMultiplier;
-  b = RGBWSensor.getBlue() / colorMultiplier;
-  
+  r = RGBWSensor.getRed();
+  g = RGBWSensor.getGreen();
+  b = RGBWSensor.getBlue();
+
   //Serial.println(String(r) + ", " + String(g) + ", " + String(b) + ", " + String(w));
 
-  if (r > g) {
-    return -r;
-    Serial.println("Left");
-  } else if (b > g) {
-    return b;
-    Serial.println("Right");
-  } else {  
-    return 0;
-    Serial.println("Stay");
+  if (RGBWSensor.getWhite() > whiteMin) {
+    Serial.println("White: " + String(RGBWSensor.getWhite()));
+    int steer;
+    if (r > g) {
+      steer = -r;
+      Serial.println("Left");
+    } else if (b > g) {
+      steer = b;
+      Serial.println("Right");
+    } else {
+      steer = 0;
+      Serial.println("Stay");
+    }
+    driveCurve(steer/265);
+  } else {
+    driveSraight();
   }
+
 }
 
 void incrementLeftCounter() {
@@ -126,50 +133,57 @@ void incrementRightCounter() {
   rightCounter += 1;
 }
 
-void drive(int steer) {
-
-  rightCorrection = (leftCounter * leftCirc - rightCounter * rightCirc);
-
-  int rightStp = 0;
-  int leftStp = 0;
-  //Serial.println(steer);
-
-  float steerMultiplierL = 1;
-  float steerMultiplierR = 1;
-
-  if (steer >= -20 and steer <= 20) {
-    if (rightCorrection > 0) {
-      rightStp = wheelStp;
-    }
-    else if (rightCorrection < 0) {
-      leftStp = wheelStp;
-    } else if (rightCorrection == 0) {
-      leftCounter = 0;
-      rightCounter = 0;
-    }
+void driveStraight() {
+  //STRAIGHT
+  if (leftCounter > rightCounter) {
+    steerLeft = 255;
+    steerRight = 0;
+  } else if (leftCounter < rightCounter) {
+    steerLeft = 0;
+    steerRight = 255;
   } else {
-    leftStp = 0;
-    rightStp = 0;
-    if (steer < -20) {
-      steerMultiplierR = 1 - ((-steer / 512));
-      steerMultiplierL = 1;
-    } else {
-      steerMultiplierL = 1 - ((steer / 512));
-      steerMultiplierR = 1;
-    }
+    leftCounter = 0;
+    rightCounter = 0;
+    steerLeft = 0;
+    steerRight = 0;
+  }
+  steerLeft *= steerMultiplier;
+  steerRight *= steerMultiplier;
+
+  motor(255 - steerLeft, 255 - steerRight);
+}
+void driveCurve(int steer) {
+  //CURVE
+  if (steer > 0) {
+    steerLeft = steer;
+    steerRight = 0;
+    leftCounter = 0;
+    rightCounter = 0;
+  } else {
+    steerLeft = 0;
+    steerRight = -steer;
+    leftCounter = 0;
+    rightCounter = 0;
   }
 
+  steerLeft *= steerMultiplier;
+  steerRight *= steerMultiplier;
 
+  motor(255 - steerLeft, 255 - steerRight);
+}
 
+void motor(int leftWheelVoltage, int rightWheelVoltage) {
   if (directionForward == true) {
-    analogWrite(5, 0);
-    analogWrite(6, (255 - leftStp) * steerMultiplierR);
-    analogWrite(9, 0);
-    analogWrite(10, (255 - rightStp) * steerMultiplierL);
+    analogWrite(5, 0); //leftWheel
+    analogWrite(6, leftWheelVoltage * leftCirc);
+    analogWrite(9, 0); //rightWheel
+    analogWrite(10, rightWheelVoltage * rightCirc);
   } else {
-    analogWrite(5, 255 - leftStp);
+    analogWrite(5, leftWheelVoltage * leftCirc);//leftWheel
     analogWrite(6, 0);
-    analogWrite(9, 255 - rightStp);
+    analogWrite(9, leftWheelVoltage * rightCirc); //rightWheel
     analogWrite(10, 0);
   }
 }
+}
+
