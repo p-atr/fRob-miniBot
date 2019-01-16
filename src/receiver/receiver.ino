@@ -25,6 +25,7 @@ float steerStrength = 0.5;
 const int wheelStp = 155;
 bool directionForward = true;
 int autoSteerStrength = 2;
+bool manualSteering = false;
 
 bool leftLast;
 bool rightLast;
