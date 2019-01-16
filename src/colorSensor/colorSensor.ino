@@ -52,7 +52,6 @@ void loop() {
   long r = RGBWSensor.getRed()/256;  
   long g = RGBWSensor.getGreen()/256;  
   long b = RGBWSensor.getBlue()/256;
-  long w = RGBWSensor.getWhite()/256;
   //Serial.println(String(r) + ", " + String(g) + ", " + String(b) + ", " + String(w));
   if(r > g){
     Serial.println("Left");

@@ -69,7 +69,15 @@ void loop(void) {
     Serial.println(payload.mes);
     mesage = payload.mes;
   }
-  drive((int)mesage);
+  if(manualSteering == true){
+    drive((int)mesage); 
+  } else {
+    drive(autoSteering());
+  }
+}
+
+int autoSteering (){
+  
 }
 
 void drive(int steer) {
@@ -116,6 +124,7 @@ void drive(int steer) {
   }
 
 
+
   if (directionForward == true) {
     analogWrite(5, 0);
     analogWrite(6, (255 - leftStp) * steerMultiplierR);
@@ -128,4 +137,3 @@ void drive(int steer) {
     analogWrite(10, 0);
   }
 }
-
