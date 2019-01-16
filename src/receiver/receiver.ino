@@ -25,7 +25,6 @@ float steerStrength = 0.5;
 const int wheelStp = 155;
 bool directionForward = true;
 int autoSteerStrength = 2;
-bool manualSteering = false;
 
 bool leftLast;
 bool rightLast;
@@ -38,6 +37,8 @@ int rightCorrection;
 long r = 0;
 long g = 0;
 long b = 0;
+
+int colorMultiplier = 256/autoSteerStrength;
 
 void setup(void)
 {
@@ -95,22 +96,21 @@ void loop(void) {
   } else {
     drive(autoSteering());
   }
-
-  r = RGBWSensor.getRed() / 256;
-  g = RGBWSensor.getGreen() / 256;
-  b = RGBWSensor.getBlue() / 256;
-
 }
 
 int autoSteering () {
 
+  r = RGBWSensor.getRed() / colorMultiplier;
+  g = RGBWSensor.getGreen() / colorMultiplier;
+  b = RGBWSensor.getBlue() / colorMultiplier;
+  
   //Serial.println(String(r) + ", " + String(g) + ", " + String(b) + ", " + String(w));
 
   if (r > g) {
-    return -r*autoSteerStrength;
+    return -r;
     Serial.println("Left");
   } else if (b > g) {
-    return b*autoSteerStrength;
+    return b;
     Serial.println("Right");
   } else {  
     return 0;
