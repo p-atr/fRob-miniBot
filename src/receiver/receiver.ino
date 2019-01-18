@@ -51,8 +51,8 @@ void setup(void)
   pinMode(9, OUTPUT);
   pinMode(10, OUTPUT);
 
-  attachInterrupt(digitalPinToInterrupt(2), incrementLeftCounter, CHANGE);
-  attachInterrupt(digitalPinToInterrupt(3), incrementRightCounter, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(2), incrementLeftCounter, LOW);
+  attachInterrupt(digitalPinToInterrupt(3), incrementRightCounter, LOW);
   leftLast = digitalRead(2);
   rightLast = digitalRead(3);
   leftCounter = 0;
