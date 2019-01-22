@@ -20,13 +20,13 @@ int manualSteerDirection = 0;
 VEML6040 RGBWSensor;
 
 //WHEELS
-const float leftCirc = 23.5; //23.5
-const float rightCirc = 22.8; //22.8
+const float leftCirc = 1; //23.5
+const float rightCirc = 0.97; //22.8
 float steerStrength = 0.5;
 const int wheelStp = 155;
 bool directionForward = true;
 float maxSpeedMultiplier = 0.7;
-long whiteMin = 60000;
+long whiteMin = 30000;
 int steerMultiplier = 1;
 
 bool leftLast;
@@ -53,10 +53,8 @@ void setup(void)
   pinMode(9, OUTPUT);
   pinMode(10, OUTPUT);
 
-  attachInterrupt(digitalPinToInterrupt(2), incrementLeftCounter, LOW);
-  attachInterrupt(digitalPinToInterrupt(3), incrementRightCounter, LOW);
-  leftLast = digitalRead(2);
-  rightLast = digitalRead(3);
+  attachInterrupt(digitalPinToInterrupt(2), incrementLeftCounter, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(3), incrementRightCounter, CHANGE);
   leftCounter = 0;
   rightCounter = 0;
 
@@ -81,7 +79,8 @@ void veml_setup() {
 
 void loop(void) {
 
-  network.update();                  // Check the network regularly
+    //Serial.println("loop");
+    network.update();                  // Check the network regularly
 
 
   while ( network.available() ) {     // Is there anything ready for us?
@@ -95,6 +94,7 @@ void loop(void) {
   if (manualSteering == true) {
     driveCurve((int)(manualSteerDirection - 512) / 2);
   } else {
+    //Serial.println("loopElse");
     autoSteering();
   }
 }
@@ -105,7 +105,7 @@ void autoSteering () {
   g = RGBWSensor.getGreen();
   b = RGBWSensor.getBlue();
 
-  //Serial.println(String(r) + ", " + String(g) + ", " + String(b) + ", " + String(w));
+  //Serial.println(String(r) + ", " + String(g) + ", " + String(b) + ", " + String(RGBWSensor.getWhite()));
 
   if (RGBWSensor.getWhite() > whiteMin) {
     Serial.println("White: " + String(RGBWSensor.getWhite()));
@@ -122,6 +122,7 @@ void autoSteering () {
     }
     driveCurve(steer/265);
   } else {
+    Serial.println("autoSteering");
     driveStraight();
   }
 
@@ -139,21 +140,25 @@ void driveStraight() {
   //STRAIGHT
   int steerLeft, steerRight;
   if (leftCounter > rightCounter) {
-    steerLeft = 255;
-    steerRight = 0;
+    motor(255*steerMultiplier, 255);
+    //steerLeft = 255;
+    //steerRight = 0;
   } else if (leftCounter < rightCounter) {
-    steerLeft = 0;
-    steerRight = 255;
+    motor(255,255*steerMultiplier);
+    //steerLeft = 0;
+    //steerRight = 255;
   } else {
+    motor(255,255);
     leftCounter = 0;
     rightCounter = 0;
-    steerLeft = 0;
-    steerRight = 0;
+    //steerLeft = 0;
+    //steerRight = 0;
   }
-  steerLeft *= steerMultiplier;
-  steerRight *= steerMultiplier;
+  //steerLeft *= steerMultiplier;
+  //steerRight *= steerMultiplier;
 
-  motor(255 - steerLeft, 255 - steerRight);
+  //Serial.println("LC:" + String(leftCounter) + "  RC:" + String(rightCounter) + "  SL:" + String(steerLeft) + "  SR:" + String(steerRight));
+  //motor(255 - 128, 255 - 128);
 }
 void driveCurve(int steer) {
   //CURVE
