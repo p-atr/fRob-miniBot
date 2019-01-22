@@ -11,6 +11,7 @@ const uint16_t other_node = 01;    // Address of the other node in Octal format
 struct payload_t {
   int mes;
 };
+bool manualSteering = false;
 int manualSteerDirection = 0;
 
 //COLORSENSOR
@@ -26,6 +27,7 @@ const int wheelStp = 155;
 bool directionForward = true;
 float maxSpeedMultiplier = 0.7;
 long whiteMin = 60000;
+int steerMultiplier = 1;
 
 bool leftLast;
 bool rightLast;
@@ -120,7 +122,7 @@ void autoSteering () {
     }
     driveCurve(steer/265);
   } else {
-    driveSraight();
+    driveStraight();
   }
 
 }
@@ -135,6 +137,7 @@ void incrementRightCounter() {
 
 void driveStraight() {
   //STRAIGHT
+  int steerLeft, steerRight;
   if (leftCounter > rightCounter) {
     steerLeft = 255;
     steerRight = 0;
@@ -154,6 +157,7 @@ void driveStraight() {
 }
 void driveCurve(int steer) {
   //CURVE
+  int steerLeft, steerRight;
   if (steer > 0) {
     steerLeft = steer;
     steerRight = 0;
@@ -185,5 +189,3 @@ void motor(int leftWheelVoltage, int rightWheelVoltage) {
     analogWrite(10, 0);
   }
 }
-}
-
