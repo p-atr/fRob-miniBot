@@ -105,15 +105,15 @@ void autoSteering () {
   g = RGBWSensor.getGreen();
   b = RGBWSensor.getBlue();
 
-  //Serial.println(String(r) + ", " + String(g) + ", " + String(b) + ", " + String(RGBWSensor.getWhite()));
+  Serial.println(String(r) + ", " + String(g) + ", " + String(b) + ", " + String(RGBWSensor.getWhite()));
 
   if (RGBWSensor.getWhite() > whiteMin) {
     Serial.println("White: " + String(RGBWSensor.getWhite()));
     int steer;
-    if (r > g) {
+    if (r > g and r > b) {
       steer = -r;
       Serial.println("Left");
-    } else if (b > g) {
+    } else if (b > g and b > r) {
       steer = b;
       Serial.println("Right");
     } else {
