@@ -37,9 +37,6 @@ float maxSpeedMultiplier = 0.7;
 long whiteMin = 30000;
 int steerMultiplier = 1;
 
-bool leftLast;
-bool rightLast;
-
 int leftCounter;
 int rightCounter;
 
