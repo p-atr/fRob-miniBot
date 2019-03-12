@@ -1,3 +1,9 @@
+
+
+
+// include rest of receiver!!!!!!!!!
+
+
 #include <RF24Network.h>
 #include <RF24.h>
 #include <SPI.h>
@@ -109,8 +115,12 @@ void loop(void) {
     network.read(header, &payload, sizeof(payload));
     Serial.println(payload.mes);
     mesage = payload.mes;
+  
   }
   drive((int)mesage);
+  
+    
+  }
 }
 
 void drive(int steer) {
@@ -169,4 +179,3 @@ void drive(int steer) {
     analogWrite(10, 0);
   }
 }
-

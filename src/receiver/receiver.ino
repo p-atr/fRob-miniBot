@@ -11,6 +11,13 @@ const uint16_t other_node = 01;    // Address of the other node in Octal format
 struct payload_t {
   int mes;
 };
+
+// noch StandartRGBFarbwerte messen und hier einfügen um zwischen Wand und Auto zu unterscheiden
+int redwall; 
+int greenwall; 
+int bluewall; 
+int standartabwichigwall;
+
 bool manualSteering = false;
 int manualSteerDirection = 0;
 
@@ -107,25 +114,37 @@ void autoSteering () {
 
   Serial.println(String(r) + ", " + String(g) + ", " + String(b) + ", " + String(RGBWSensor.getWhite()));
 
-  if (RGBWSensor.getWhite() > whiteMin) {
-    Serial.println("White: " + String(RGBWSensor.getWhite()));
-    int steer;
-    if (r > g and r > b) {
-      steer = -r;
-      Serial.println("Left");
-    } else if (b > g and b > r) {
-      steer = b;
-      Serial.println("Right");
-    } else {
-      steer = 0;
-      Serial.println("Stay");
+  // looks if car is to close to wall
+  // IF SCHLEIFE NOCHMALS DURCHDENKEN
+  if (sonar.ping_cm < maxentfernig) and ((r - redwall > standartabwichigwall) or (r - redwall < standartabwichigwall) and (g - greenwall > standartabwichigwall) or (g - greenwall < standartabwichigwall) and (b - bluewall > standartabwichigwall) or (b - bluewall < standartabwichigwall)){        
+    Serial.print("Change direction");
+    driveCurve(511);
+    int timee1= millis();
+    int timee= random(1000,7000);
+    if ((int timee2) > timee + timee1){
+      driveStaight();
     }
-    driveCurve(steer/265);
-  } else {
-    Serial.println("autoSteering");
-    driveStraight();
   }
-
+  else{
+    if (RGBWSensor.getWhite() > whiteMin) {
+      Serial.println("White: " + String(RGBWSensor.getWhite()));
+      int steer;
+      if (r > g and r > b) {
+        steer = -r;
+        Serial.println("Left");
+      } else if (b > g and b > r) {
+        steer = b;
+        Serial.println("Right");
+      } else {
+        steer = 0;
+        Serial.println("Stay");
+      }
+      driveCurve(steer/265); //input between -511 and 511 maximum turns 90 degree left/right
+    } else {
+      Serial.println("autoSteering");
+      driveStraight();
+    }
+  }
 }
 
 void incrementLeftCounter() {
