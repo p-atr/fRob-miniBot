@@ -44,19 +44,22 @@ int rightCounter;
 
 int rightCorrection;
 
+//RGB
 long r = 0;
 long g = 0;
 long b = 0;
+
+
 
 void setup(void)
 {
   //rotation sensor
   pinMode(2, INPUT_PULLUP);
   pinMode(3, INPUT_PULLUP);
-  //left
+  //left motor
   pinMode(5, OUTPUT);
   pinMode(6, OUTPUT);
-  //right
+  //right motor
   pinMode(9, OUTPUT);
   pinMode(10, OUTPUT);
 
@@ -116,7 +119,8 @@ void autoSteering () {
 
   // looks if car is to close to wall
   // IF SCHLEIFE NOCHMALS DURCHDENKEN
-  if (sonar.ping_cm < maxentfernig) and ((r - redwall > standartabwichigwall) or (r - redwall < standartabwichigwall) and (g - greenwall > standartabwichigwall) or (g - greenwall < standartabwichigwall) and (b - bluewall > standartabwichigwall) or (b - bluewall < standartabwichigwall)){        
+  if (sonar.ping_cm < maxentfernig) and ((r - redwall > standartabwichigwall) or (r - redwall < standartabwichigwall) and (g - greenwall > standartabwichigwall) or 
+  (g - greenwall < standartabwichigwall) and (b - bluewall > standartabwichigwall) or (b - bluewall < standartabwichigwall)){        
     Serial.print("Change direction");
     driveCurve(511);
     int timee1= millis();
