@@ -13,6 +13,8 @@ struct payload_t {
   int mes;
 };
 
+int timee2; // konstant Zeit lesen
+
 // noch StandartRGBFarbwerte messen und hier einfügen um zwischen Wand und Auto zu unterscheiden
 int redwall;
 int greenwall;
@@ -108,69 +110,6 @@ void veml_setup() {
   RGBWSensor.setConfiguration(VEML6040_IT_320MS + VEML6040_AF_AUTO + VEML6040_SD_ENABLE);
 }
 
-void loop(void) {
-
-  //Serial.println("loop");
-  network.update();                  // Check the network regularly
-
-
-  while ( network.available() ) {     // Is there anything ready for us?
-
-    RF24NetworkHeader header;        // If so, grab it and print it out
-    payload_t payload;
-    network.read(header, &payload, sizeof(payload));
-    Serial.println(payload.mes);
-    manualSteerDirection = payload.mes;
-  }
-  if (manualSteering == true) {
-    driveCurve((int)(manualSteerDirection - 512) / 2);
-  } else {
-    //Serial.println("loopElse");
-    autoSteering();
-  }
-}
-
-void autoSteering () {
-
-  r = RGBWSensor.getRed();
-  g = RGBWSensor.getGreen();
-  b = RGBWSensor.getBlue();
-
-  Serial.println(String(r) + ", " + String(g) + ", " + String(b) + ", " + String(RGBWSensor.getWhite()));
-
-  // looks if car is to close to wall
-  // IF SCHLEIFE NOCHMALS DURCHDENKEN
-  if (sonar.ping_cm() //< maxentfernig) and ((r - redwall > standartabwichigwall) or (r - redwall < standartabwichigwall) and (g - greenwall > standartabwichigwall) or (g - greenwall < standartabwichigwall) and (b - bluewall > standartabwichigwall) or (b - bluewall < standartabwichigwall)) {
-    Serial.print("Change direction");
-    driveCurve(511);
-    int timee1 = millis();
-    int timee = random(1000, 7000);
-    if ((int timee2) > timee + timee1) {
-      driveStaight();
-    }
-  }
-  else {
-    if (RGBWSensor.getWhite() > whiteMin) {
-      Serial.println("White: " + String(RGBWSensor.getWhite()));
-      int steer;
-      if (r > g and r > b) {
-        steer = -r;
-        Serial.println("Left");
-      } else if (b > g and b > r) {
-        steer = b;
-        Serial.println("Right");
-      } else {
-        steer = 0;
-        Serial.println("Stay");
-      }
-      driveCurve(steer / 265); //input between -511 and 511 maximum turns 90 degree left/right
-    } else {
-      Serial.println("autoSteering");
-      driveStraight();
-    }
-  }
-}
-
 
 void driveStraight() {
   //STRAIGHT
@@ -228,5 +167,68 @@ void motor(int leftWheelVoltage, int rightWheelVoltage) {
     analogWrite(6, 0);
     analogWrite(9, leftWheelVoltage * rightCirc); //rightWheel
     analogWrite(10, 0);
+  }
+}
+
+void loop(void) {
+
+  //Serial.println("loop");
+  network.update();                  // Check the network regularly
+
+  timee2= millis();
+  while ( network.available() ) {     // Is there anything ready for us?
+
+    RF24NetworkHeader header;        // If so, grab it and print it out
+    payload_t payload;
+    network.read(header, &payload, sizeof(payload));
+    Serial.println(payload.mes);
+    manualSteerDirection = payload.mes;
+  }
+  if (manualSteering == true) {
+    driveCurve((int)(manualSteerDirection - 512) / 2);
+  } else {
+    //Serial.println("loopElse");
+    autoSteering();
+  }
+}
+
+void autoSteering () {
+
+  r = RGBWSensor.getRed();
+  g = RGBWSensor.getGreen();
+  b = RGBWSensor.getBlue();
+
+  Serial.println(String(r) + ", " + String(g) + ", " + String(b) + ", " + String(RGBWSensor.getWhite()));
+
+  // looks if car is to close to wall
+  // IF SCHLEIFE NOCHMALS DURCHDENKEN
+  if (sonar.ping_cm()){ //< maxentfernig) and ((r - redwall > standartabwichigwall) or (r - redwall < standartabwichigwall) and (g - greenwall > standartabwichigwall) or (g - greenwall < standartabwichigwall) and (b - bluewall > standartabwichigwall) or (b - bluewall < standartabwichigwall)) {
+    Serial.print("Change direction");
+    driveCurve(511);
+    int timee1 = millis();
+    int timee = random(1000, 7000);
+    if (( timee2) > timee + timee1) {
+      driveStraight();
+    }
+  }
+  else {
+    if (RGBWSensor.getWhite() > whiteMin) {
+      Serial.println("White: " + String(RGBWSensor.getWhite()));
+      int steer;
+      if (r > g and r > b) {
+        steer = -r;
+        Serial.println("Left");
+      } else if (b > g and b > r) {
+        steer = b;
+        Serial.println("Right");
+      } else {
+        steer = 0;
+        Serial.println("Stay");
+      }
+      driveCurve(steer / 265); //input between -511 and 511 maximum turns 90 degree left/right
+    } else {
+      Serial.println("autoSteering");
+      driveStraight();
+    }
   }
 }
