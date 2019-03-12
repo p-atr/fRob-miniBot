@@ -49,7 +49,7 @@ long r = 0;
 long g = 0;
 long b = 0;
 
-<<<<<<< HEAD
+
 // distanzsensor varible
 int Trigpin = 9;
 int Echopin = 10;
@@ -66,9 +66,7 @@ NewPing sonar(Trigpin, Echopin, maxdistanz);
 //sry bois weiss nüm wofür das isch XD
 bool neuisekunde;
 int i;
-=======
 
->>>>>>> a0aadf672668018c59ce5284b1a6cb8f474a7871
 
 void setup(void)
 {
