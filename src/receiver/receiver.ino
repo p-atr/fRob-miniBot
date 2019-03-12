@@ -13,8 +13,9 @@ struct payload_t {
   int mes;
 };
 
+int timee2; // konstant Zeit lesen
 
-// noch StandartRGBFarbwerte messen und hier einfügen um zwischen Wand und Auto zu unterscheiden (SIMI STUFF)
+// noch StandartRGBFarbwerte messen und hier einfügen um zwischen Wand und Auto zu unterscheiden
 int redwall;
 int greenwall;
 int bluewall;
@@ -23,16 +24,10 @@ int standartabwichigwall;
 bool manualSteering = false;
 int manualSteerDirection = 0;
 
-int timee2; // konstant Zeit lesen
-
 //COLORSENSOR
 #include "Wire.h"
 #include "veml6040.h"
 VEML6040 RGBWSensor;
-
-long r = 0;
-long g = 0;
-long b = 0;
 
 //WHEELS
 const float leftCirc = 1; //23.5
@@ -49,6 +44,9 @@ int rightCounter;
 
 int rightCorrection;
 
+long r = 0;
+long g = 0;
+long b = 0;
 
 
 // distanzsensor varible
@@ -63,6 +61,10 @@ int maxentfernig;  // muss noch bestimmt werden
 int zit1;
 int zit2;
 NewPing sonar(Trigpin, Echopin, maxdistanz);
+
+//sry bois weiss nüm wofür das isch XD
+bool neuisekunde;
+int i;
 
 void incrementLeftCounter() {
   leftCounter += 1;
@@ -199,7 +201,6 @@ void autoSteering () {
   Serial.println(String(r) + ", " + String(g) + ", " + String(b) + ", " + String(RGBWSensor.getWhite()));
 
   // looks if car is to close to wall
-  // IF SCHLEIFE NOCHMALS DURCHDENKEN
   if ((sonar.ping_cm() > maxentfernig ) and (abs(r - redwall) > standartabwichigwall) and (abs(g - greenwall) > standartabwichigwall) and (abs(b - bluewall) > standartabwichigwall)){
     Serial.print("Change direction");
     driveCurve(511);
