@@ -64,6 +64,14 @@ NewPing sonar(Trigpin, Echopin, maxdistanz);
 bool neuisekunde;
 int i;
 
+void incrementLeftCounter() {
+  leftCounter += 1;
+}
+
+void incrementRightCounter() {
+  rightCounter += 1;
+}
+
 void setup(void)
 {
   //rotation sensor
@@ -132,7 +140,7 @@ void autoSteering () {
 
   // looks if car is to close to wall
   // IF SCHLEIFE NOCHMALS DURCHDENKEN
-  if (sonar.ping_cm() < maxentfernig) //and ((r - redwall > standartabwichigwall) or (r - redwall < standartabwichigwall) and (g - greenwall > standartabwichigwall) or (g - greenwall < standartabwichigwall) and (b - bluewall > standartabwichigwall) or (b - bluewall < standartabwichigwall)) {
+  if (sonar.ping_cm() < maxentfernig) and ((r - redwall > standartabwichigwall) or (r - redwall < standartabwichigwall) and (g - greenwall > standartabwichigwall) or (g - greenwall < standartabwichigwall) and (b - bluewall > standartabwichigwall) or (b - bluewall < standartabwichigwall)) {
     Serial.print("Change direction");
     driveCurve(511);
     int timee1 = millis();
@@ -163,13 +171,6 @@ void autoSteering () {
   }
 }
 
-void incrementLeftCounter() {
-  leftCounter += 1;
-}
-
-void incrementRightCounter() {
-  rightCounter += 1;
-}
 
 void driveStraight() {
   //STRAIGHT
