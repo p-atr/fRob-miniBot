@@ -13,9 +13,9 @@ struct payload_t {
 };
 
 // noch StandartRGBFarbwerte messen und hier einfügen um zwischen Wand und Auto zu unterscheiden
-int redwall; 
-int greenwall; 
-int bluewall; 
+int redwall;
+int greenwall;
+int bluewall;
 int standartabwichigwall;
 
 bool manualSteering = false;
@@ -44,10 +44,12 @@ int rightCounter;
 
 int rightCorrection;
 
+//RGB
 long r = 0;
 long g = 0;
 long b = 0;
 
+<<<<<<< HEAD
 // distanzsensor varible
 int Trigpin = 9;
 int Echopin = 10;
@@ -64,32 +66,31 @@ NewPing sonar(Trigpin, Echopin, maxdistanz);
 //sry bois weiss nüm wofür das isch XD
 bool neuisekunde;
 int i;
+=======
+
+>>>>>>> a0aadf672668018c59ce5284b1a6cb8f474a7871
 
 void setup(void)
 {
-  //rotation sensor
+  //WHEEL ROTATION SENSOR
   pinMode(2, INPUT_PULLUP);
   pinMode(3, INPUT_PULLUP);
-  //left
-  pinMode(5, OUTPUT);
-  pinMode(6, OUTPUT);
-  //right
-  pinMode(9, OUTPUT);
-  pinMode(10, OUTPUT);
-
   attachInterrupt(digitalPinToInterrupt(2), incrementLeftCounter, CHANGE);
   attachInterrupt(digitalPinToInterrupt(3), incrementRightCounter, CHANGE);
   leftCounter = 0;
   rightCounter = 0;
 
+
+
+
   Serial.begin(115200);
-  Serial.println("RF24Network/examples/helloworld_rx/");
 
   SPI.begin();
   radio.begin();
   network.begin(/*channel*/ 90, /*node address*/ this_node);
 
   veml_setup();
+  motor_setup();
 }
 
 void veml_setup() {
@@ -101,10 +102,20 @@ void veml_setup() {
   RGBWSensor.setConfiguration(VEML6040_IT_320MS + VEML6040_AF_AUTO + VEML6040_SD_ENABLE);
 }
 
+void motor_setup() {
+  //MOTOR LEFT
+  pinMode(5, OUTPUT);
+  pinMode(6, OUTPUT);
+
+  //MOTOR RIGHT
+  pinMode(9, OUTPUT);
+  pinMode(10, OUTPUT);
+}
+
 void loop(void) {
 
-    //Serial.println("loop");
-    network.update();                  // Check the network regularly
+  //Serial.println("loop");
+  network.update();                  // Check the network regularly
 
 
   while ( network.available() ) {     // Is there anything ready for us?
@@ -133,16 +144,17 @@ void autoSteering () {
 
   // looks if car is to close to wall
   // IF SCHLEIFE NOCHMALS DURCHDENKEN
-  if (sonar.ping_cm < maxentfernig) and ((r - redwall > standartabwichigwall) or (r - redwall < standartabwichigwall) and (g - greenwall > standartabwichigwall) or (g - greenwall < standartabwichigwall) and (b - bluewall > standartabwichigwall) or (b - bluewall < standartabwichigwall)){        
+  if (sonar.ping_cm < maxentfernig) and ((r - redwall > standartabwichigwall) or (r - redwall < standartabwichigwall) and (g - greenwall > standartabwichigwall) or
+                                           (g - greenwall < standartabwichigwall) and (b - bluewall > standartabwichigwall) or (b - bluewall < standartabwichigwall)) {
     Serial.print("Change direction");
     driveCurve(511);
-    int timee1= millis();
-    int timee= random(1000,7000);
-    if ((int timee2) > timee + timee1){
+    int timee1 = millis();
+    int timee = random(1000, 7000);
+    if ((int timee2) > timee + timee1) {
       driveStaight();
     }
   }
-  else{
+  else {
     if (RGBWSensor.getWhite() > whiteMin) {
       Serial.println("White: " + String(RGBWSensor.getWhite()));
       int steer;
@@ -156,7 +168,7 @@ void autoSteering () {
         steer = 0;
         Serial.println("Stay");
       }
-      driveCurve(steer/265); //input between -511 and 511 maximum turns 90 degree left/right
+      driveCurve(steer / 265); //input between -511 and 511 maximum turns 90 degree left/right
     } else {
       Serial.println("autoSteering");
       driveStraight();
@@ -174,21 +186,20 @@ void incrementRightCounter() {
 
 void driveStraight() {
   //STRAIGHT
-  int steerLeft, steerRight;
   if (leftCounter > rightCounter) {
-    motor(255*steerMultiplier, 255);
-    //steerLeft = 255;
-    //steerRight = 0;
-  } else if (leftCounter < rightCounter) {
-    motor(255,255*steerMultiplier);
-    //steerLeft = 0;
-    //steerRight = 255;
-  } else {
-    motor(255,255);
+    motor(255 * steerMultiplier, 255);
+  }
+
+  else if (leftCounter < rightCounter) {
+    motor(255, 255 * steerMultiplier);
+
+  }
+
+  else {
+    motor(255, 255);
     leftCounter = 0;
     rightCounter = 0;
-    //steerLeft = 0;
-    //steerRight = 0;
+
   }
   //steerLeft *= steerMultiplier;
   //steerRight *= steerMultiplier;
@@ -216,7 +227,7 @@ void driveCurve(int steer) {
 
   motor(255 - steerLeft, 255 - steerRight);
 }
-
+// MOTOR DRIVER
 void motor(int leftWheelVoltage, int rightWheelVoltage) {
   if (directionForward == true) {
     analogWrite(5, 0); //leftWheel
