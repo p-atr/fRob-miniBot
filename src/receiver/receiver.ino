@@ -48,6 +48,23 @@ long r = 0;
 long g = 0;
 long b = 0;
 
+// distanzsensor varible
+int Trigpin = 9;
+int Echopin = 10;
+int maxdistanz = 200;
+int distanz1;
+int distanz2;
+int speeed;
+int standartspeed; // muss noch bestimmt werden
+int maxentfernig;  // muss noch bestimmt werden
+int zit1;
+int zit2;
+NewPing sonar(Trigpin, Echopin, maxdistanz);
+
+//sry bois weiss nüm wofür das isch XD
+bool neuisekunde;
+int i;
+
 void setup(void)
 {
   //rotation sensor
