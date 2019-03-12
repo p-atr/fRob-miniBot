@@ -76,8 +76,8 @@ void setup(void)
   pinMode(9, OUTPUT);
   pinMode(10, OUTPUT);
 
-  attachInterrupt(digitalPinToInterrupt(2), incrementLeftCounter, CHANGE);
-  attachInterrupt(digitalPinToInterrupt(3), incrementRightCounter, CHANGE);
+  //attachInterrupt(digitalPinToInterrupt(2), incrementLeftCounter, CHANGE);
+  //attachInterrupt(digitalPinToInterrupt(3), incrementRightCounter, CHANGE);
   leftCounter = 0;
   rightCounter = 0;
 
