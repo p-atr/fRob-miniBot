@@ -8,7 +8,6 @@
 //Erkennungs LED
 #define NUM_LEDS 7
 #define DATA_PIN 4
-#define CLOCK_PIN 13
 
 CRGB leds[NUM_LEDS];
 int led_colors[7][3] = {{255,0,0},{170,85,0},{85,170,0},{0,255,0},{0,170,85},{0,85,170},{0,0,255}};
@@ -61,8 +60,8 @@ long b = 0;
 
 
 // distanzsensor varible
-int Trigpin = 12;
-int Echopin = 11;
+int Trigpin = A3;
+int Echopin = A2;
 int maxdistanz = 200;
 int distanz1;
 int distanz2;
@@ -87,7 +86,7 @@ void setup(void)
   pinMode(2, INPUT_PULLUP);
   pinMode(3, INPUT_PULLUP);
   //LED
-  pinMode(4,OUTPUT);
+   //pinMode(4,OUTPUT);
   //left
   pinMode(5, OUTPUT);
   pinMode(6, OUTPUT);
