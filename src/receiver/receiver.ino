@@ -60,13 +60,18 @@ long b = 0;
 
 
 // distanzsensor varible
+<<<<<<< HEAD
 int Trigpin = A3;
 int Echopin = A2;
+=======
+#define Trigpin A2
+#define Echopin A3
+>>>>>>> 53f397f98e060ae8f0b57b1796d9f9f5dcee479b
 int maxdistanz = 200;
 int distanz1;
 int distanz2;
 int speeed;
-int standartspeed; // muss noch bestiemmt werden
+int standartspeed; // muss noch bestimmt werden
 int maxentfernig;  // muss noch bestimmt werden
 int zit1;
 int zit2;
