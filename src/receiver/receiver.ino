@@ -26,9 +26,9 @@ struct payload_t {
 int timee2; // konstant Zeit lesen
 
 // noch StandartRGBFarbwerte messen und hier einfügen um zwischen Wand und Auto zu unterscheiden
-int redwall;
-int greenwall;
-int bluewall;
+int redwall;                    //zwischen 7200 und 3600
+int greenwall;                  //zwischen 7000 und 3600
+int bluewall;                   //zwischen 2600 und 1300
 int standartabwichigwall;
 
 bool manualSteering = false;
@@ -60,13 +60,11 @@ long b = 0;
 
 
 // distanzsensor varible
-<<<<<<< HEAD
+//pöö<<<<<<< HEAD
 int Trigpin = A3;
 int Echopin = A2;
-=======
 #define Trigpin A2
 #define Echopin A3
->>>>>>> 53f397f98e060ae8f0b57b1796d9f9f5dcee479b
 int maxdistanz = 200;
 int distanz1;
 int distanz2;
@@ -199,6 +197,8 @@ void loop(void) {
   //Serial.println("loop");
   network.update();                  // Check the network regularly
 
+  Serial.println(String(r) + ", " + String(g) + ", " + String(b));
+
   timee2= millis();
   led_setup();
   while ( network.available() ) {     // Is there anything ready for us?
@@ -223,7 +223,7 @@ void autoSteering () {
   g = RGBWSensor.getGreen();
   b = RGBWSensor.getBlue();
 
-  Serial.println(String(r) + ", " + String(g) + ", " + String(b));
+  
   //Serial.println(String(r) + ", " + String(g) + ", " + String(b) + ", " + String(RGBWSensor.getWhite()));
 
   // looks if car is to close to wall
