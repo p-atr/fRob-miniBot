@@ -10,7 +10,7 @@
 #define DATA_PIN 4
 
 CRGB leds[NUM_LEDS];
-int led_colors[7][3] = {{255,0,0},{170,85,0},{85,170,0},{0,255,0},{0,170,85},{0,85,170},{0,0,255}};
+int led_colors[7][3] = {{255, 0, 0}, {170, 85, 0}, {85, 170, 0}, {0, 255, 0}, {0, 170, 85}, {0, 85, 170}, {0, 0, 255}};
 
 
 RF24 radio(7, 8);               // nRF24L01(+) radio attached using Getting Started board
@@ -70,9 +70,9 @@ int distanz1;
 int distanz2;
 int speeed;
 int standartspeed; // muss noch bestimmt werden
-int maxentfernig = 5; 
+int maxentfernig = 5;
 int timespeed1;
-int timespeed2; 
+int timespeed2;
 int abwichigstandartspeed = 0.1;
 
 NewPing sonar(Trigpin, Echopin, maxdistanz);
@@ -88,20 +88,20 @@ void incrementRightCounter() {
 void setup(void)
 {
   //Startwert für distanz1
-  distanz1= sonar.ping_cm();
-  
+  distanz1 = sonar.ping_cm();
+
   //rotation sensor
   pinMode(2, INPUT_PULLUP);
   pinMode(3, INPUT_PULLUP);
   //LED
-   //pinMode(4,OUTPUT);
+  //pinMode(4,OUTPUT);
   //left
   pinMode(5, OUTPUT);
   pinMode(6, OUTPUT);
   //right
   pinMode(9, OUTPUT);
   pinMode(10, OUTPUT);
-  
+
 
   //attachInterrupt(digitalPinToInterrupt(2), incrementLeftCounter, CHANGE);
   //attachInterrupt(digitalPinToInterrupt(3), incrementRightCounter, CHANGE);
@@ -118,11 +118,11 @@ void setup(void)
   veml_setup();
 }
 
-// LED um Auto 
+// LED um Auto
 void led_setup() {
   FastLED.addLeds<WS2812B, DATA_PIN, GRB>(leds, NUM_LEDS);
-  for(int i = 0; i<NUM_LEDS; i++){
-    leds[i] = CRGB(led_colors[i][0],led_colors[i][1],led_colors[i][2]);
+  for (int i = 0; i < NUM_LEDS; i++) {
+    leds[i] = CRGB(led_colors[i][0], led_colors[i][1], led_colors[i][2]);
   }
   FastLED.show();
 }
@@ -198,21 +198,21 @@ void motor(int leftWheelVoltage, int rightWheelVoltage) {
 }
 
 void loop(void) {
-  Serial.println("speeed: " + String(speeed));
+  Serial.println("speeed: " + String(speeed) + " distanz1: " + String(distanz1) + " distanz2: " + String(distanz2) + " timespeed1: " + String(timespeed1) + " timespeed2: " + String(timespeed2));
   //Serial.println("loop");
   network.update();                  // Check the network regularly
 
-  if (millis()>timespeed2){
-    distanz2= sonar.ping_cm();
-    speeed =(distanz2-distanz1)/(timespeed2-timespeed1);   //Geschwindigkeitsmessung
-    distanz1= sonar.ping_cm();
-    timespeed1= millis();
-    timespeed2= timespeed1+1000;  
+  if (millis() > timespeed2) {
+    distanz2 = sonar.ping_cm();
+    speeed = 10000 * (distanz2 - distanz1) / (timespeed2 - timespeed1); //Geschwindigkeitsmessung
+    distanz1 = sonar.ping_cm();
+    timespeed1 = millis();
+    timespeed2 = timespeed1 + 1000;
   }
 
   //Serial.println(String(r) + ", " + String(g) + ", " + String(b));
 
-  timee2= millis();
+  timee2 = millis();
   led_setup();
   while ( network.available() ) {     // Is there anything ready for us?
 
@@ -236,18 +236,16 @@ void autoSteering () {
   g = RGBWSensor.getGreen();
   b = RGBWSensor.getBlue();
 
-  
+
   //Serial.println(String(r) + ", " + String(g) + ", " + String(b) + ", " + String(RGBWSensor.getWhite()));
 
   // looks if car is to close to wall
-  if ((sonar.ping_cm() > maxentfernig ) and (standartspeed*(1-abwichigstandartspeed)<speeed<standartspeed*(1+abwichigstandartspeed)) and(abs(r - redwall) < standartabwichigwall) and (abs(g - greenwall) < standartabwichigwall) and (abs(b - bluewall) < standartabwichigwall)){
-    //Serial.print("Change direction");
+  if (sonar.ping_cm() > maxentfernig ) //Serial.print("Change direction");
     driveCurve(511);
-    int timee1 = millis();
-    int timee = random(1000, 7000);
-    if (( timee2) > timee + timee1) {
-      driveStraight();
-    }
+  int timee1 = millis();
+  int timee = random(1000, 7000);
+  if (( timee2) > timee + timee1) {
+    driveStraight();
   }
   else {
     if (RGBWSensor.getWhite() > whiteMin) {
