@@ -10,8 +10,8 @@ RF24 radio(7,8);                    // nRF24L01(+) radio attached using Getting 
 
 RF24Network network(radio);          // Network uses that radio
 
-const uint16_t this_node = 01;        // Address of our node in Octal format
-const uint16_t other_node = 00;       // Address of the other node in Octal format
+const uint16_t this_node = 00;        // Address of our node in Octal format
+const uint16_t other_node = 01;       // Address of the other node in Octal format
 
 const unsigned long interval = 200; //ms  // How often to send 'hello world to the other unit
 
@@ -43,7 +43,7 @@ void loop() {
   if ( now - last_sent >= interval  )
   {
     last_sent = now;
-    lsteer=analogRead(A4);
+    lsteer=0;
 
     Serial.print("Sending...");
     payload_t payload = {lsteer};
