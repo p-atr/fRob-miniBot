@@ -75,6 +75,9 @@ int timespeed1;
 int timespeed2; 
 int abwichigstandartspeed = 0.1;
 
+//Steuerungvariabel
+bool Wechsel = False;
+
 NewPing sonar(Trigpin, Echopin, maxdistanz);
 
 void incrementLeftCounter() {
@@ -202,6 +205,11 @@ void loop(void) {
   //Serial.println("loop");
   network.update();                  // Check the network regularly
 
+  if (( timee2) > timee + timee1) {
+      driveStraight();
+      Wechsel= False;
+      }
+
   if (millis()>timespeed2){
     distanz2= sonar.ping_cm();
     speeed =(distanz2-distanz1)/(timespeed2-timespeed1);   //Geschwindigkeitsmessung
@@ -242,11 +250,11 @@ void autoSteering () {
   // looks if car is to close to wall
   if ((sonar.ping_cm() > maxentfernig ) and (standartspeed*(1-abwichigstandartspeed)<speeed<standartspeed*(1+abwichigstandartspeed)) and(abs(r - redwall) < standartabwichigwall) and (abs(g - greenwall) < standartabwichigwall) and (abs(b - bluewall) < standartabwichigwall)){
     //Serial.print("Change direction");
-    driveCurve(511);
-    int timee1 = millis();
-    int timee = random(1000, 7000);
-    if (( timee2) > timee + timee1) {
-      driveStraight();
+    if (Wechsel== False) {
+      driveCurve(511);
+      Wechsel= True;
+      int timee1 = millis();
+      int timee = random(1000, 7000);
     }
   }
   else {
