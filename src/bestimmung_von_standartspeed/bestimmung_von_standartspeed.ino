@@ -68,7 +68,7 @@ int Echopin = A2;
 int maxdistanz = 200;
 int distanz1;
 int distanz2;
-int speeed;
+float speeed;
 int standartspeed; // muss noch bestimmt werden
 int maxentfernig = 5;
 int timespeed1;
@@ -198,16 +198,17 @@ void motor(int leftWheelVoltage, int rightWheelVoltage) {
 }
 
 void loop(void) {
+  driveStraight();
   Serial.println("speeed: " + String(speeed) + " distanz1: " + String(distanz1) + " distanz2: " + String(distanz2) + " timespeed1: " + String(timespeed1) + " timespeed2: " + String(timespeed2));
   //Serial.println("loop");
   network.update();                  // Check the network regularly
 
   if (millis() > timespeed2) {
     distanz2 = sonar.ping_cm();
-    speeed = 10000 * (distanz2 - distanz1) / (timespeed2 - timespeed1); //Geschwindigkeitsmessung
+    speeed = 1000 * (distanz2 - distanz1) / (timespeed2 - timespeed1); //Geschwindigkeitsmessung
     distanz1 = sonar.ping_cm();
     timespeed1 = millis();
-    timespeed2 = timespeed1 + 1000;
+    timespeed2 = timespeed1 + 100;
   }
 
   //Serial.println(String(r) + ", " + String(g) + ", " + String(b));
@@ -221,50 +222,5 @@ void loop(void) {
     network.read(header, &payload, sizeof(payload));
     //Serial.println(payload.mes);
     manualSteerDirection = payload.mes;
-  }
-  if (manualSteering == true) {
-    driveCurve((int)(manualSteerDirection - 512) / 2);
-  } else {
-    //Serial.println("loopElse");
-    autoSteering();
-  }
-}
-
-void autoSteering () {
-
-  r = RGBWSensor.getRed();
-  g = RGBWSensor.getGreen();
-  b = RGBWSensor.getBlue();
-
-
-  //Serial.println(String(r) + ", " + String(g) + ", " + String(b) + ", " + String(RGBWSensor.getWhite()));
-
-  // looks if car is to close to wall
-  if (sonar.ping_cm() > maxentfernig ) //Serial.print("Change direction");
-    driveCurve(511);
-  int timee1 = millis();
-  int timee = random(1000, 7000);
-  if (( timee2) > timee + timee1) {
-    driveStraight();
-  }
-  else {
-    if (RGBWSensor.getWhite() > whiteMin) {
-      //Serial.println("White: " + String(RGBWSensor.getWhite()));
-      int steer;
-      if (r > g and r > b) {
-        steer = -r;
-        //Serial.println("Left");
-      } else if (b > g and b > r) {
-        steer = b;
-        //Serial.println("Right");
-      } else {
-        steer = 0;
-        //Serial.println("Stay");
-      }
-      driveCurve(steer / 265); //input between -511 and 511 maximum turns 90 degree left/right
-    } else {
-      //Serial.println("autoSteering");
-      driveStraight();
-    }
   }
 }

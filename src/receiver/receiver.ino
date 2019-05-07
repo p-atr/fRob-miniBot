@@ -205,14 +205,14 @@ void loop(void) {
   //Serial.println("loop");
   network.update();                  // Check the network regularly
 
-  if (( timee2) > timee + timee1) {
+  if (( timee2) > timee + timee1) { //wieder gerade fahren nach drehen
       driveStraight();
       Wechsel= False;
       }
 
-  if (millis()>timespeed2){
+  if (millis()>timespeed2){       //Geschwindigkeitsmessung
     distanz2= sonar.ping_cm();
-    speeed =(distanz2-distanz1)/(timespeed2-timespeed1);   //Geschwindigkeitsmessung
+    speeed =(distanz2-distanz1)/(timespeed2-timespeed1);   
     distanz1= sonar.ping_cm();
     timespeed1= millis();
     timespeed2= timespeed1+1000;  
@@ -238,7 +238,7 @@ void loop(void) {
   }
 }
 
-void autoSteering () {
+void autoSteering () {          //falls Wand drehe zufällig, sonst prüfe ob Slave und folgen, sonst gerade aus
 
   r = RGBWSensor.getRed();
   g = RGBWSensor.getGreen();
@@ -256,8 +256,9 @@ void autoSteering () {
       int timee1 = millis();
       int timee = random(1000, 7000);
     }
+  
   }
-  else {
+  else if (){  //prüfen ob er ein "Slave" ist falls ja programm unten
     if (RGBWSensor.getWhite() > whiteMin) {
       //Serial.println("White: " + String(RGBWSensor.getWhite()));
       int steer;
@@ -272,9 +273,11 @@ void autoSteering () {
         //Serial.println("Stay");
       }
       driveCurve(steer / 265); //input between -511 and 511 maximum turns 90 degree left/right
-    } else {
+    } 
+  }
+  else {
       //Serial.println("autoSteering");
       driveStraight();
     }
-  }
+  
 }
