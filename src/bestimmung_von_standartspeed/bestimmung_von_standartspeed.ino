@@ -9,35 +9,35 @@
 #define NUM_LEDS 7
 #define DATA_PIN 4
 
-CRGB leds[NUM_LEDS];
-int led_colors[7][3] = {{255, 0, 0}, {170, 85, 0}, {85, 170, 0}, {0, 255, 0}, {0, 170, 85}, {0, 85, 170}, {0, 0, 255}};
+//CRGB leds[NUM_LEDS];
+//int led_colors[7][3] = {{255, 0, 0}, {170, 85, 0}, {85, 170, 0}, {0, 255, 0}, {0, 170, 85}, {0, 85, 170}, {0, 0, 255}};
 
 
-RF24 radio(7, 8);               // nRF24L01(+) radio attached using Getting Started board
+//RF24 radio(7, 8);               // nRF24L01(+) radio attached using Getting Started board
 
-RF24Network network(radio);      // Network uses that radio
-const uint16_t this_node = 00;    // Address of our node in Octal format ( 04,031, etc)
-const uint16_t other_node = 01;    // Address of the other node in Octal format
+//RF24Network network(radio);      // Network uses that radio
+//const uint16_t this_node = 00;    // Address of our node in Octal format ( 04,031, etc)
+//const uint16_t other_node = 01;    // Address of the other node in Octal format
 
-struct payload_t {
-  int mes;
-};
+//struct payload_t {
+  //int mes;
+//};
 
 int timee2; // konstant Zeit lesen
 
 // noch StandartRGBFarbwerte messen und hier einfügen um zwischen Wand und Auto zu unterscheiden
-int redwall;                    //zwischen 7200 und 3600
-int greenwall;                  //zwischen 7000 und 3600
-int bluewall;                   //zwischen 2600 und 1300
-int standartabwichigwall;
+//int redwall;                    //zwischen 7200 und 3600
+//int greenwall;                  //zwischen 7000 und 3600
+//int bluewall;                   //zwischen 2600 und 1300
+//int standartabwichigwall;
 
-bool manualSteering = false;
-int manualSteerDirection = 0;
+//bool manualSteering = false;
+//int manualSteerDirection = 0;
 
 //COLORSENSOR
 #include "Wire.h"
 #include "veml6040.h"
-VEML6040 RGBWSensor;
+//VEML6040 RGBWSensor;
 
 //WHEELS
 const float leftCirc = 1; //23.5
@@ -66,13 +66,13 @@ int Echopin = A2;
 #define Trigpin A2
 #define Echopin A3
 int maxdistanz = 200;
-int distanz1;
-int distanz2;
+float distanz1;
+float distanz2;
 float speeed;
 int standartspeed; // muss noch bestimmt werden
 int maxentfernig = 5;
-int timespeed1;
-int timespeed2;
+long timespeed1;
+long timespeed2;
 int abwichigstandartspeed = 0.1;
 
 NewPing sonar(Trigpin, Echopin, maxdistanz);
@@ -111,36 +111,18 @@ void setup(void)
   Serial.begin(115200);
   //Serial.println("RF24Network/examples/helloworld_rx/");
 
-  SPI.begin();
-  radio.begin();
-  network.begin(/*channel*/ 90, /*node address*/ this_node);
-
-  veml_setup();
-}
-
-// LED um Auto
-void led_setup() {
-  FastLED.addLeds<WS2812B, DATA_PIN, GRB>(leds, NUM_LEDS);
-  for (int i = 0; i < NUM_LEDS; i++) {
-    leds[i] = CRGB(led_colors[i][0], led_colors[i][1], led_colors[i][2]);
-  }
-  FastLED.show();
+ 
 }
 
 
-void veml_setup() {
-  Wire.begin();
-  if (!RGBWSensor.begin()) {
-    //Serial.println("ERROR: couldn't detect VEML6040");
-    while (1) {}
-  }
-  RGBWSensor.setConfiguration(VEML6040_IT_320MS + VEML6040_AF_AUTO + VEML6040_SD_ENABLE);
-}
+
+
 
 
 void driveStraight() {
   //STRAIGHT
-  int steerLeft, steerRight;
+  motor(255,255);
+  /*int steerLeft, steerRight;
   if (leftCounter > rightCounter) {
     motor(255 * steerMultiplier, 255);
     //steerLeft = 255;
@@ -160,7 +142,7 @@ void driveStraight() {
   //steerRight *= steerMultiplier;
 
   //Serial.println("LC:" + String(leftCounter) + "  RC:" + String(rightCounter) + "  SL:" + String(steerLeft) + "  SR:" + String(steerRight));
-  //motor(255 - 128, 255 - 128);
+  //motor(255 - 128, 255 - 128);*/
 }
 void driveCurve(int steer) {
   //CURVE
@@ -184,43 +166,28 @@ void driveCurve(int steer) {
 }
 
 void motor(int leftWheelVoltage, int rightWheelVoltage) {
-  if (directionForward == true) {
     analogWrite(5, 0); //leftWheel
-    analogWrite(6, leftWheelVoltage * leftCirc);
+    analogWrite(6, 255);//        leftWheelVoltage * leftCirc);
     analogWrite(9, 0); //rightWheel
-    analogWrite(10, rightWheelVoltage * rightCirc);
-  } else {
-    analogWrite(5, leftWheelVoltage * leftCirc);//leftWheel
-    analogWrite(6, 0);
-    analogWrite(9, leftWheelVoltage * rightCirc); //rightWheel
-    analogWrite(10, 0);
-  }
+    analogWrite(10,255);// rightWheelVoltage * rightCirc);
 }
 
 void loop(void) {
   driveStraight();
-  Serial.println("speeed: " + String(speeed) + " distanz1: " + String(distanz1) + " distanz2: " + String(distanz2) + " timespeed1: " + String(timespeed1) + " timespeed2: " + String(timespeed2));
-  //Serial.println("loop");
-  network.update();                  // Check the network regularly
+  
+  //Serial.println("loop");    // Check the network regularly
 
-  if (millis() > timespeed2) {
+  if (millis() > (timespeed1 + 1000)) {
+    timespeed2= millis();
     distanz2 = sonar.ping_cm();
-    speeed = 1000 * (distanz2 - distanz1) / (timespeed2 - timespeed1); //Geschwindigkeitsmessung
+    speeed =  10*(distanz1 - distanz2) / (timespeed2 - timespeed1); //Geschwindigkeitsmessung
+    Serial.println("speeed: " + String(speeed) + " distanz1: " + String(distanz1) + " distanz2: " + String(distanz2) + " timespeed1: " + String(timespeed1) + " timespeed2: " + String(timespeed2));
     distanz1 = sonar.ping_cm();
     timespeed1 = millis();
-    timespeed2 = timespeed1 + 100;
   }
 
   //Serial.println(String(r) + ", " + String(g) + ", " + String(b));
 
   timee2 = millis();
-  led_setup();
-  while ( network.available() ) {     // Is there anything ready for us?
-
-    RF24NetworkHeader header;        // If so, grab it and print it out
-    payload_t payload;
-    network.read(header, &payload, sizeof(payload));
-    //Serial.println(payload.mes);
-    manualSteerDirection = payload.mes;
-  }
+  
 }
