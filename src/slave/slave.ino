@@ -42,6 +42,7 @@ void network_receive() {
     if (payload.id == 0) {
       Serial.print("Received packet from node #");
       Serial.println(payload.node);
+      network_send(0, master);
     }
     else {
       Serial.print("UNKNOWN PACKET FROM NODE #");
@@ -60,6 +61,7 @@ void network_send(int id, uint16_t node) {
   }
   else {
     Serial.println("failed.");
+    network_send(id, node);
   }
 }
 
