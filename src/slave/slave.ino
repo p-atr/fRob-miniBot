@@ -86,6 +86,7 @@ void network_send(uint16_t node, payload_t localpayload) {
   }
   else {
     Serial.println("failed.");
+    network_send(id, node);
   }
 }
 

@@ -25,11 +25,13 @@ struct payload_t {
 
 int timee2; // konstant Zeit lesen
 
-// noch StandartRGBFarbwerte messen und hier einfügen um zwischen Wand und Auto zu unterscheiden
-int redwall;                    //zwischen 7200 und 3600
-int greenwall;                  //zwischen 7000 und 3600
-int bluewall;                   //zwischen 2600 und 1300
-int standartabwichigwall;
+//farbsensor<->Wand Erkennung
+int redwall=5400;                    //zwischen 7200 und 3600
+int greenwall=5300;                  //zwischen 7000 und 3600
+int bluewall=1950;                   //zwischen 2600 und 1300
+int standartabwichigwallred = 1800;
+int standartabwichigwallgreen = 1700;
+int standartabwichigwallblue = 650;
 
 bool manualSteering = false;
 int manualSteerDirection = 0;
@@ -69,11 +71,11 @@ int maxdistanz = 200;
 int distanz1;
 int distanz2;
 int speeed;
-int standartspeed; // muss noch bestimmt werden
+int standartspeed= 0.35;
 int maxentfernig = 5; 
 int timespeed1;
 int timespeed2; 
-int abwichigstandartspeed = 0.1;
+int abwichigstandartspeed = 0.12; //abweichung absolut in metern
 
 //Steuerungvariabel
 bool Wechsel = False;
@@ -205,17 +207,17 @@ void loop(void) {
   //Serial.println("loop");
   network.update();                  // Check the network regularly
 
-  if (( timee2) > timee + timee1) {
+  if (( timee2) > timee + timee1) { //wieder gerade fahren nach drehen
       driveStraight();
       Wechsel= False;
       }
-
-  if (millis()>timespeed2){
-    distanz2= sonar.ping_cm();
-    speeed =(distanz2-distanz1)/(timespeed2-timespeed1);   //Geschwindigkeitsmessung
-    distanz1= sonar.ping_cm();
-    timespeed1= millis();
-    timespeed2= timespeed1+1000;  
+  if (millis() > (timespeed1 + 1000)) {//Geschwindigkeitsmessung
+    timespeed2= millis();
+    distanz2 = sonar.ping_cm();
+    speeed =  10*(distanz1 - distanz2) / (timespeed2 - timespeed1); //Geschwindigkeitsmessung
+    Serial.println("speeed: " + String(speeed) + " distanz1: " + String(distanz1) + " distanz2: " + String(distanz2) + " timespeed1: " + String(timespeed1) + " timespeed2: " + String(timespeed2));
+    distanz1 = sonar.ping_cm();
+    timespeed1 = millis();
   }
 
   //Serial.println(String(r) + ", " + String(g) + ", " + String(b));
@@ -238,7 +240,7 @@ void loop(void) {
   }
 }
 
-void autoSteering () {
+void autoSteering () {          //falls Wand drehe zufällig, sonst prüfe ob Slave und folgen, sonst gerade aus
 
   r = RGBWSensor.getRed();
   g = RGBWSensor.getGreen();
@@ -248,7 +250,7 @@ void autoSteering () {
   //Serial.println(String(r) + ", " + String(g) + ", " + String(b) + ", " + String(RGBWSensor.getWhite()));
 
   // looks if car is to close to wall
-  if ((sonar.ping_cm() > maxentfernig ) and (standartspeed*(1-abwichigstandartspeed)<speeed<standartspeed*(1+abwichigstandartspeed)) and(abs(r - redwall) < standartabwichigwall) and (abs(g - greenwall) < standartabwichigwall) and (abs(b - bluewall) < standartabwichigwall)){
+  if ((sonar.ping_cm() > maxentfernig ) and ((standartspeed-abwichigstandartspeed)<speeed<(standartspeed+abwichigstandartspeed)) and(abs(r - redwall) < standartabwichigwallred) and (abs(g - greenwall) < standartabwichigwallgreen) and (abs(b - bluewall) < standartabwichigwallblue)){
     //Serial.print("Change direction");
     if (Wechsel== False) {
       driveCurve(511);
@@ -256,8 +258,9 @@ void autoSteering () {
       int timee1 = millis();
       int timee = random(1000, 7000);
     }
+  
   }
-  else {
+  else if (){  //prüfen ob er ein "Slave" ist falls ja programm unten
     if (RGBWSensor.getWhite() > whiteMin) {
       //Serial.println("White: " + String(RGBWSensor.getWhite()));
       int steer;
@@ -272,9 +275,11 @@ void autoSteering () {
         //Serial.println("Stay");
       }
       driveCurve(steer / 265); //input between -511 and 511 maximum turns 90 degree left/right
-    } else {
+    } 
+  }
+  else {
       //Serial.println("autoSteering");
       driveStraight();
     }
-  }
+  
 }
