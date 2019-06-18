@@ -24,6 +24,8 @@ struct payload_t {
 };
 
 int timee2; // konstant Zeit lesen
+int timee1;
+int timee; // random zeit bis Kurven fahren beendet
 
 //farbsensor<->Wand Erkennung
 int redwall=5400;                    //zwischen 7200 und 3600
@@ -78,7 +80,7 @@ int timespeed2;
 int abwichigstandartspeed = 0.12; //abweichung absolut in metern
 
 //Steuerungvariabel
-bool Wechsel = False;
+bool Wechsel = false;
 
 NewPing sonar(Trigpin, Echopin, maxdistanz);
 
@@ -209,7 +211,7 @@ void loop(void) {
 
   if (( timee2) > timee + timee1) { //wieder gerade fahren nach drehen
       driveStraight();
-      Wechsel= False;
+      Wechsel= false;
       }
   if (millis() > (timespeed1 + 1000)) {//Geschwindigkeitsmessung
     timespeed2= millis();
@@ -252,15 +254,15 @@ void autoSteering () {          //falls Wand drehe zufällig, sonst prüfe ob Sl
   // looks if car is to close to wall
   if ((sonar.ping_cm() > maxentfernig ) and ((standartspeed-abwichigstandartspeed)<speeed<(standartspeed+abwichigstandartspeed)) and(abs(r - redwall) < standartabwichigwallred) and (abs(g - greenwall) < standartabwichigwallgreen) and (abs(b - bluewall) < standartabwichigwallblue)){
     //Serial.print("Change direction");
-    if (Wechsel== False) {
+    if (Wechsel== false) {
       driveCurve(511);
-      Wechsel= True;
-      int timee1 = millis();
-      int timee = random(1000, 7000);
+      Wechsel= true;
+      timee1 = millis();
+      timee = random(1000, 7000);
     }
   
   }
-  else if (){  //prüfen ob er ein "Slave" ist falls ja programm unten
+  /*else if {  //prüfen ob er ein "Slave" ist falls ja programm unten
     if (RGBWSensor.getWhite() > whiteMin) {
       //Serial.println("White: " + String(RGBWSensor.getWhite()));
       int steer;
@@ -276,7 +278,7 @@ void autoSteering () {          //falls Wand drehe zufällig, sonst prüfe ob Sl
       }
       driveCurve(steer / 265); //input between -511 and 511 maximum turns 90 degree left/right
     } 
-  }
+  }*/
   else {
       //Serial.println("autoSteering");
       driveStraight();

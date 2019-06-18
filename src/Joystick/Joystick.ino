@@ -51,7 +51,8 @@ int gschwindigkeitjoystick(int p) {
   return (q);
 }
 
-int richtungbestimmung (int l) {
+//zwischen 0 und 255, 0-> links, 128-> gerade, 256-> rechts
+int richtungbestimmung (int l) { 
   l = l / 4;
   return l;
 }
