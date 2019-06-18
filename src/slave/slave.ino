@@ -60,8 +60,8 @@ void network_receive() {
     else if (payload.id == 1 && payload.drive_direction == false) {
       digitalWrite(5, payload.left_speed);
       analogWrite(6, LOW);
-      analogWrite(9, LOW);
-      digitalWrite(10, payload.right_speed);
+      analogWrite(9, payload.right_speed);
+      digitalWrite(10, LOW);
     }
     else if (payload.id == 2) {
       digitalWrite(5, LOW);
@@ -86,7 +86,6 @@ void network_send(uint16_t node, payload_t localpayload) {
   }
   else {
     Serial.println("failed.");
-    network_send(id, node);
   }
 }
 
