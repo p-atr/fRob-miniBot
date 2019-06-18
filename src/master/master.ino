@@ -68,7 +68,7 @@ void network_receive() {
       }
       else if (command == "start\n") {
         Serial.println("start -> 01");
-        network_send(01, payload_t {1, 255, 255, 1, this_node});
+        network_send(01, payload_t {1, 255, 255, 0, this_node});
       }
       else if (command == "stop\n") {
         Serial.println("stop -> 01");
