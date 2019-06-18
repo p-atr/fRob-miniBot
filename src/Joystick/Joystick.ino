@@ -7,52 +7,51 @@ void setup() {
   pinMode(A6, INPUT);
   pinMode(A7, INPUT);
   pinMode(3, INPUT_PULLUP);
-  
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
-  /*button = digitalRead(3);
-  Serial.println(analogRead(A7));
-  Serial.println("---");
-  Serial.println(analogRead(A6));
-  delay(500);
-  /*Serial.print(analogRead(A2));
-  Serial.print(", ");
-  Serial.print(analogRead(A3));
-  Serial.print(", ");
-  Serial.println(button);*/
   x = analogRead(7);
   y = analogRead(6);
   bool u = forward(y);
   int gschwindigkeit = gschwindigkeitjoystick(y);
-  Serial.println(gschwindigkeit);
-  
-  
+  int richtung = richtungbestimmung(x);
+  Serial.print(u);
+  Serial.print(":  ");
+  Serial.print(y);
+  Serial.print("  ");
+  Serial.print(gschwindigkeit);
+  Serial.print("  ");
+  Serial.println(richtung);
 }
-
-bool forward(int k){
+// true wenn forwärts  false wenn rückwärts
+bool forward(int k) {
   bool richtung;
-  if (k >=512){
-    richtung= true;
+  if (k >= 512) {
+    richtung = false;
   }
-  else{
-    richtung= false;
-    }
-   return richtung;
+  else {
+    richtung = true;
+  }
+  return richtung;
 }
 
-int gschwindigkeitjoystick(int p){
+// geschwindigkeit zwischen 0 und 255
+int gschwindigkeitjoystick(int p) {
   int q;
-  if (p>= 550){
-    q = (p-512)/2;
-    }
-  else if (p<=474){
-    q = 255 - p/2;
-    }
+  if (p >= 550) {
+    q = (p - 512) / 2;
+  }
+  else if (p <= 474) {
+    q = 255 - p / 2;
+  }
   else {
     q = 0;
-    }
-  return(q);
   }
-  
+  return (q);
+}
+
+int richtungbestimmung (int l) {
+  l = l / 4;
+  return l;
+}
