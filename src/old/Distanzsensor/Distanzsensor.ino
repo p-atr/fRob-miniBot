@@ -7,7 +7,7 @@ NewPing sonar(Trigpin, Echopin, maxdistance);
 int distanz1;
 int distanz2;
 int speeed;
-int standartspeed; // muss noch bestimmt werden
+int standardspeed; // muss noch bestimmt werden
 int maxentfernig;  // muss noch bestimmt werden
 
 void setup() {
@@ -30,7 +30,7 @@ void loop() {
   Serial.println("LOOOL");
   }
   
-  if (standartspeed*1.1<speeed or standartspeed*0.9>speeed and sonar.ping_cm()<maxentfernig) { // entdeckig vom auto
+  if (standardspeed*1.1<speeed or standardspeed*0.9>speeed and sonar.ping_cm()<maxentfernig) { // entdeckig vom auto
   Serial.println("Oha! Da ist mir was im weg -> auto entdeckt");
   }
 }
