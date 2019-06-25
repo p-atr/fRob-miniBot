@@ -74,13 +74,13 @@ void network_receive() {
 void drive_forward(int left_speed, int right_speed) {
   digitalWrite(5, LOW);
   analogWrite(6, left_speed);
-  analogWrite(9, LOW);
-  digitalWrite(10, right_speed);
+  digitalWrite(9, LOW);
+  analogWrite(10, right_speed);
 }
 
 void drive_backwards(int left_speed, int right_speed) {
-  digitalWrite(5, left_speed);
-  analogWrite(6, LOW);
+  analogWrite(5, left_speed);
+  digitalWrite(6, LOW);
   analogWrite(9, right_speed);
   digitalWrite(10, LOW);
 }
@@ -102,4 +102,5 @@ void network_send(uint16_t node, payload_t localpayload) {
 void loop() {
   network.update();                       // Check the network regularly
   network_receive();
+  
 }
