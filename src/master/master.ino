@@ -2,6 +2,13 @@
 #include <RF24.h>
 #include <SPI.h>
 
+#define xAxis A7
+#define yAxis A6
+
+int left_motor;
+int right_motor;
+long tTime = 0;
+
 String command;
 
 RF24 radio(7, 8);                  // nRF24L01(+) radio attached using Getting Started board
@@ -17,14 +24,16 @@ struct payload_t {                 // Structure of our payload
   unsigned long node;
 };
 
-void setup(void)
-{
+void setup(void) {
   Serial.begin(115200);
   Serial.println("MASTER");
 
   SPI.begin();
   radio.begin();
   network.begin(/*channel*/ 90, /*node address*/ this_node);
+
+  pinMode(A6, INPUT);
+  pinMode(A7, INPUT);
 }
 
 void network_send(uint16_t node, payload_t localpayload) {
@@ -58,30 +67,92 @@ void network_receive() {
     }
   }
 }
-  void command_handler() {
-    if (Serial.available()) {
-      Serial.setTimeout(2);
-      command = Serial.readString();
-      if (command == "ping\n") {
-        Serial.println("ping -> 01");
-        network_send(01, payload_t {0, 0, 0, 0, this_node});
-      }
-      else if (command == "start\n") {
-        Serial.println("start -> 01");
-        network_send(01, payload_t {1, 255, 255, 1, this_node});
-      }
-      else if (command == "stop\n") {
-        Serial.println("stop -> 01");
-        network_send(01, payload_t {2, 0, 0, 0, this_node});
-      }
-      else {
-        Serial.print("UNKNOWN COMMAND: ");
-        Serial.println(command);
-      }
+void command_handler() {
+  if (Serial.available()) {
+    Serial.setTimeout(2);
+    command = Serial.readString();
+    if (command == "ping\n") {
+      Serial.println("ping -> 01");
+      network_send(01, payload_t {0, 0, 0, 0, this_node});
+    }
+    else if (command == "start\n") {
+      Serial.println("start -> 01");
+      network_send(01, payload_t {1, 255, 255, 1, this_node});
+    }
+    else if (command == "stop\n") {
+      Serial.println("stop -> 01");
+      network_send(01, payload_t {2, 0, 0, 0, this_node});
+    }
+    else {
+      Serial.print("UNKNOWN COMMAND: ");
+      Serial.println(command);
     }
   }
-  void loop(void) {
-    network.update();
-    network_receive();
-    command_handler();
+}
+
+
+void joystick() {
+  if (millis() >= tTime + 200) {
+    int yRaw = analogRead(yAxis);
+    int xRaw = analogRead(xAxis);
+    bool driveDirection = forward(yRaw);
+    int geschwindigkeit = gschwindigkeitjoystick(yRaw);
+
+    bool xDirection = forward(xRaw);
+    int xSpeed = gschwindigkeitjoystick(xRaw);
+
+    if (xDirection == true) {
+      left_motor = geschwindigkeit - xSpeed;
+      right_motor = geschwindigkeit;
+    }
+    else {
+      left_motor = geschwindigkeit;
+      right_motor = geschwindigkeit - xSpeed;
+    }
+    if (left_motor < 0) {
+      left_motor = 0;
+    }
+    if (right_motor < 0) {
+      right_motor = 0;
+    }
+    Serial.print("direction: ");
+    Serial.print(driveDirection);
+    Serial.print("  left_motor: ");
+    Serial.print(left_motor);
+    Serial.print("  right_motor: ");
+    Serial.println(right_motor);
+    network_send(01, payload_t {1, left_motor, right_motor, driveDirection, this_node});
+
+    tTime=millis();
   }
+}
+
+bool forward(int k) { // true wenn forwärts, false wenn rückwärts
+  if (k >= 512) {
+    return false;
+  }
+  else {
+    return true;
+  }
+}
+
+int gschwindigkeitjoystick(int p) { // geschwindigkeit zwischen 0 und 255
+  if (p >= 550) {
+    return (p - 512) / 2;
+  }
+  else if (p <= 474) {
+    return 255 - p / 2;
+  }
+  else {
+    return 0;
+  }
+}
+
+
+
+void loop(void) {
+  network.update();
+  network_receive();
+  command_handler();
+  joystick();
+}
