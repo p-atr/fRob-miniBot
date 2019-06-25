@@ -1,7 +1,6 @@
 #define xAxis A7
 #define yAxis A6
 
-int button;
 int left_motor;
 int right_motor;
 
@@ -9,7 +8,6 @@ void setup() {
   Serial.begin(115200);
   pinMode(A6, INPUT);
   pinMode(A7, INPUT);
-  pinMode(3, INPUT_PULLUP);
 }
 
 void loop() { // put your main code here, to run repeatedly:
