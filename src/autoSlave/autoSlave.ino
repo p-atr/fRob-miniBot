@@ -22,7 +22,8 @@ struct payload_t {                  // Structure of our payload
 
 int normSpeed = 255;
 int minDist = 15;
-bool driving = false;
+bool driving = true;
+int left_speed = 255, right_speed = 255;
 
 void setup(void) {
   Serial.begin(115200);
@@ -58,6 +59,8 @@ void network_receive() {
       Serial.println("pong -> 00");
       network_send(00, payload_t {0, 0, 0, 0, this_node});
     } else if (payload.id == 1) {
+      left_speed = payload.left_speed;
+      right_speed = payload.right_speed;
       driving = true;
     }
     else if (payload.id == 2) {
@@ -82,7 +85,7 @@ void updateSensors() {
 }
 
 bool isColliding() {
-  if (dist < minDist) {
+  if (dist < minDist && dist > 0) {
     return true;
   }
   return false;
@@ -122,10 +125,10 @@ void loop() {
   updateSensors();
 
   if(isColliding()){
-    drive_backwards(255, 0);
+    drive_backwards(0, right_speed);
   } else {
     if(driving){
-      drive_forward(payload.left_speed, payload.right_speed);
+      drive_forward(left_speed, right_speed);
     } else {
       drive_forward(0, 0);
     }
