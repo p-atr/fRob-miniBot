@@ -52,16 +52,10 @@ void network_receive() {
       network_send(00, payload_t {0, 0, 0, 0, this_node});
     }
     else if (payload.id == 1 && payload.drive_direction == true) {
-      digitalWrite(5, LOW);
-      analogWrite(6, payload.left_speed);
-      analogWrite(9, LOW);
-      digitalWrite(10, payload.right_speed);
+      drive_forward(payload.left_speed, payload.right_speed);
     }
     else if (payload.id == 1 && payload.drive_direction == false) {
-      digitalWrite(5, payload.left_speed);
-      analogWrite(6, LOW);
-      analogWrite(9, payload.right_speed);
-      digitalWrite(10, LOW);
+      drive_backwards(payload.left_speed, payload.right_speed);
     }
     else if (payload.id == 2) {
       digitalWrite(5, LOW);
@@ -75,6 +69,22 @@ void network_receive() {
     }
   }
 }
+
+
+void drive_forward(int left_speed, int right_speed) {
+  digitalWrite(5, LOW);
+  analogWrite(6, left_speed);
+  analogWrite(9, LOW);
+  digitalWrite(10, right_speed);
+}
+
+void drive_backwards(int left_speed, int right_speed) {
+  digitalWrite(5, left_speed);
+  analogWrite(6, LOW);
+  analogWrite(9, right_speed);
+  digitalWrite(10, LOW);
+}
+
 
 void network_send(uint16_t node, payload_t localpayload) {
   Serial.print("Sending...");
