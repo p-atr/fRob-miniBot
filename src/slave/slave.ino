@@ -1,6 +1,11 @@
 #include <RF24Network.h>
 #include <RF24.h>
 #include <SPI.h>
+#include <NewPing.h>
+//#include "Wire.h"
+//#include "veml6040.h"
+//VEML6040 RGBWSensor;
+NewPing sonar(A2, A3, 30);
 
 RF24 radio(7, 8);                   // nRF24L01(+) radio attached using Getting Started board
 
@@ -17,6 +22,15 @@ struct payload_t {                  // Structure of our payload
   unsigned long node;
 };
 
+/*void veml_setup() {
+  Wire.begin();
+  if(!RGBWSensor.begin()) {
+    Serial.println("ERROR: couldn't detect VEML6040");
+    while(1){}
+  }
+  RGBWSensor.setConfiguration(VEML6040_IT_320MS + VEML6040_AF_AUTO + VEML6040_SD_ENABLE);
+}*/
+
 void setup(void) {
   Serial.begin(115200);
   Serial.println("SLAVE");
@@ -24,6 +38,7 @@ void setup(void) {
   SPI.begin();
   radio.begin();
   network.begin(/*channel*/ 90, /*node address*/ this_node);
+  //veml_setup();
 
   //motor_l
   pinMode(5, OUTPUT);
@@ -37,6 +52,7 @@ void setup(void) {
   digitalWrite(10, LOW);
 }
 
+int left_speed, right_speed, driveMode;
 void network_receive() {
   while (network.available() ) {          // Is there anything ready for us?
     RF24NetworkHeader header;             // If so, grab it and print it out
@@ -52,16 +68,17 @@ void network_receive() {
       network_send(00, payload_t {0, 0, 0, 0, this_node});
     }
     else if (payload.id == 1 && payload.drive_direction == true) {
-      drive_forward(payload.left_speed, payload.right_speed);
+      left_speed = payload.left_speed;
+      right_speed = payload.right_speed;
+      driveMode = 0;
     }
     else if (payload.id == 1 && payload.drive_direction == false) {
-      drive_backwards(payload.left_speed, payload.right_speed);
+      left_speed = payload.left_speed;
+      right_speed = payload.right_speed;
+      driveMode = 1;
     }
     else if (payload.id == 2) {
-      digitalWrite(5, LOW);
-      digitalWrite(6, LOW);
-      digitalWrite(9, LOW);
-      digitalWrite(10, LOW);
+      driveMode = 2;
     }
     else {
       Serial.print("UNKNOWN PACKET FROM NODE #");
@@ -70,7 +87,26 @@ void network_receive() {
   }
 }
 
+//COLLISION
+int dist;
+long t = 0;
+void updateSensors() {
+  //sonar
+  if (millis() >= t + 29) {
+    dist = sonar.ping_cm();
+    t = millis();
+  }
+  Serial.println(dist);
+}
 
+bool isColliding() {
+  if (dist < 15 && dist > 0) {
+    return true;
+  }
+  return false;
+}
+
+//DRIVEMODES
 void drive_forward(int left_speed, int right_speed) {
   digitalWrite(5, LOW);
   analogWrite(6, left_speed);
@@ -102,5 +138,17 @@ void network_send(uint16_t node, payload_t localpayload) {
 void loop() {
   network.update();                       // Check the network regularly
   network_receive();
-  
+  updateSensors();
+
+  if(isColliding()){
+    drive_backwards(0, right_speed);
+  } else {
+    if(driveMode == 0){
+      drive_forward(left_speed, right_speed);
+    } else if (driveMode == 1){
+      drive_backwards(left_speed, right_speed);
+    } else {
+      drive_forward(0, 0);
+    }
+  }
 }
