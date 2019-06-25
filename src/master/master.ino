@@ -9,7 +9,7 @@ RF24 radio(7, 8);                  // nRF24L01(+) radio attached using Getting S
 RF24Network network(radio);        // Network uses that radio
 const uint16_t this_node = 00;     // Address of our node in Octal format ( 04,031, etc)
 
-struct payload_t {                  // Structure of our payload
+struct payload_t {                 // Structure of our payload
   int id;
   int left_speed;
   int right_speed;
@@ -68,7 +68,7 @@ void network_receive() {
       }
       else if (command == "start\n") {
         Serial.println("start -> 01");
-        network_send(01, payload_t {1, 255, 255, 0, this_node});
+        network_send(01, payload_t {1, 255, 255, 1, this_node});
       }
       else if (command == "stop\n") {
         Serial.println("stop -> 01");
