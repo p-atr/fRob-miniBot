@@ -2,8 +2,18 @@
 #include <RF24.h>
 #include <SPI.h>
 #include <NewPing.h>
+#include <FastLED.h>
 
 NewPing sonar(A2, A3, 30);
+
+#define NUM_LEDS 7
+#define DATA_PIN 4
+#define CLOCK_PIN 13
+CRGB leds[NUM_LEDS];
+//define colors
+int rainbow[7][3] = {{255,0,0},{170,85,0},{85,170,0},{0,255,0},{0,170,85},{0,85,170},{0,0,255}};
+int black[7][3] = {{0,0,0},{0,0,0},{0,0,0},{0,0,0},{0,0,0},{0,0,0},{0,0,0}};
+int red[7][3] = {{255,0,0},{255,0,0},{255,0,0},{255,0,0},{255,0,0},{255,0,0},{255,0,0}};
 
 RF24 radio(7, 8);                   // nRF24L01(+) radio attached using Getting Started board
 
@@ -32,6 +42,8 @@ void setup(void) {
   SPI.begin();
   radio.begin();
   network.begin(/*channel*/ 90, /*node address*/ this_node);
+
+  FastLED.addLeds<WS2812B, 4, GRB>(leds, 7);
 
   //motor_l
   pinMode(5, OUTPUT);
@@ -62,9 +74,15 @@ void network_receive() {
       left_speed = payload.left_speed;
       right_speed = payload.right_speed;
       driving = true;
+      setColor(red);
     }
     else if (payload.id == 2) {
       driving = false;
+      setColor(black);
+    }
+    else if (payload.id == 4) {
+      driving = false;
+      setColor(rainbow);
     }
     else {
       Serial.print("UNKNOWN PACKET FROM NODE #");
@@ -74,7 +92,7 @@ void network_receive() {
 }
 
 int dist;
-int t = 0;
+long t = 0;
 void updateSensors() {
   //sonar
   if (millis() >= t + 29) {
@@ -117,6 +135,13 @@ void network_send(uint16_t node, payload_t localpayload) {
   else {
     Serial.println("failed.");
   }
+}
+
+void setColor(int colors[7][3]){
+  for(int i = 0; i < NUM_LEDS; i++){
+    leds[i] = CRGB(colors[i][0],colors[i][1],colors[i][2]);
+  }
+  FastLED.show();
 }
 
 void loop() {

@@ -2,9 +2,9 @@
 #include <RF24.h>
 #include <SPI.h>
 #include <NewPing.h>
-//#include "Wire.h"
-//#include "veml6040.h"
-//VEML6040 RGBWSensor;
+#include <Wire.h>
+#include "veml6040.h"
+VEML6040 RGBWSensor;
 NewPing sonar(A2, A3, 30);
 
 RF24 radio(7, 8);                   // nRF24L01(+) radio attached using Getting Started board
@@ -22,14 +22,14 @@ struct payload_t {                  // Structure of our payload
   unsigned long node;
 };
 
-/*void veml_setup() {
+void veml_setup() {
   Wire.begin();
   if(!RGBWSensor.begin()) {
     Serial.println("ERROR: couldn't detect VEML6040");
     while(1){}
   }
   RGBWSensor.setConfiguration(VEML6040_IT_320MS + VEML6040_AF_AUTO + VEML6040_SD_ENABLE);
-}*/
+}
 
 void setup(void) {
   Serial.begin(115200);
@@ -38,7 +38,7 @@ void setup(void) {
   SPI.begin();
   radio.begin();
   network.begin(/*channel*/ 90, /*node address*/ this_node);
-  //veml_setup();
+  veml_setup();
 
   //motor_l
   pinMode(5, OUTPUT);
@@ -90,13 +90,25 @@ void network_receive() {
 //COLLISION
 int dist;
 long t = 0;
-void updateSensors() {
+void updateUltrasound() {
   //sonar
   if (millis() >= t + 29) {
     dist = sonar.ping_cm();
     t = millis();
   }
   Serial.println(dist);
+}
+
+int colorLimit = 800;
+int updateColorsensor() {
+  if(r > colorLimit && r > colorLimit){
+    return 0;
+  else if(g > colorLimit && g > colorLimit){
+    return 1;
+  } else if(b > colorLimit && b > colorLimit){
+    return 2;
+  }
+  return -1; //no right color
 }
 
 bool isColliding() {
@@ -121,7 +133,6 @@ void drive_backwards(int left_speed, int right_speed) {
   digitalWrite(10, LOW);
 }
 
-
 void network_send(uint16_t node, payload_t localpayload) {
   Serial.print("Sending...");
   //payload_t payload = payload;
@@ -138,10 +149,15 @@ void network_send(uint16_t node, payload_t localpayload) {
 void loop() {
   network.update();                       // Check the network regularly
   network_receive();
-  updateSensors();
+  updateUltrasound();
 
   if(isColliding()){
+    int color = updateColorsensor();
+    if(color >= 0){
+        network_send(00, payload_t {4, color, 0, 0, this_node});
+    }
     drive_backwards(0, right_speed);
+    
   } else {
     if(driveMode == 0){
       drive_forward(left_speed, right_speed);
