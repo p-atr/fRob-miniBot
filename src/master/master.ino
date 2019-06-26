@@ -58,6 +58,13 @@ void network_receive() {
       Serial.print("Received packet from node #");
       Serial.println(payload.node);
     }
+    if (payload.id == 4) {
+      Serial.print("Received color-packet from node #");
+      Serial.print(payload.node);
+      Serial.print(" including color: ");
+      Serial.println(payload.left_speed);
+      network_send(payload.node, payload_t {3, 0, 0, 0, this_node});
+    }
     else {
       Serial.print("UNKNOWN PACKET FROM NODE #");
       Serial.print(payload.node);
@@ -123,7 +130,7 @@ void joystick() {
     Serial.println(right_motor);
     network_send(01, payload_t {1, left_motor, right_motor, driveDirection, this_node});
 
-    tTime=millis();
+    tTime = millis();
   }
 }
 
