@@ -96,18 +96,24 @@ void updateUltrasound() {
     dist = sonar.ping_cm();
     t = millis();
   }
-  Serial.println(dist);
+  //Serial.println(dist);
 }
 
 int colorLimit = 800;
 int updateColorsensor() {
-  if(r > colorLimit && r > colorLimit){
+  if(RGBWSensor.getRed() > RGBWSensor.getGreen() && RGBWSensor.getRed() > RGBWSensor.getBlue() && RGBWSensor.getRed() > colorLimit){
     return 0;
-  else if(g > colorLimit && g > colorLimit){
+  } else if (RGBWSensor.getGreen() > RGBWSensor.getRed() && RGBWSensor.getGreen() > RGBWSensor.getBlue() && RGBWSensor.getGreen() > colorLimit) {
     return 1;
-  } else if(b > colorLimit && b > colorLimit){
+  } else if (RGBWSensor.getBlue() > RGBWSensor.getRed() && RGBWSensor.getBlue() > RGBWSensor.getGreen() && RGBWSensor.getBlue() > colorLimit) {
     return 2;
   }
+  /*  if(RGBWSensor.getGreen() > colorLimit){
+  }
+    return 1;
+  } else if(RGBWSensor.getBlue() > colorLimit){
+    return 2;
+  }*/
   return -1; //no right color
 }
 

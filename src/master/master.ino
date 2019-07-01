@@ -37,15 +37,15 @@ void setup(void) {
 }
 
 void network_send(uint16_t node, payload_t localpayload) {
-  Serial.print("Sending...");
+  //Serial.print("Sending...");
   //payload_t payload = payload;
   RF24NetworkHeader header(/*to node*/ node);
   bool ok = network.write(header, &localpayload, sizeof(localpayload));
   if (ok) {
-    Serial.println("ok.");
+    //Serial.println("ok.");
   }
   else {
-    Serial.println("failed.");
+    //Serial.println("failed.");
   }
 }
 
@@ -63,7 +63,12 @@ void network_receive() {
       Serial.print(payload.node);
       Serial.print(" including color: ");
       Serial.println(payload.left_speed);
-      network_send(payload.node, payload_t {3, 0, 0, 0, this_node});
+      if (payload.left_speed == 0) {
+        network_send(2, payload_t {3, 0, 0, 0, this_node});
+      } else if (payload.left_speed == 2) {
+        network_send(3, payload_t {3, 0, 0, 0, this_node});
+      }
+      
     }
     else {
       Serial.print("UNKNOWN PACKET FROM NODE #");
@@ -81,14 +86,20 @@ void command_handler() {
     if (command == "ping\n") {
       Serial.println("ping -> 01");
       network_send(01, payload_t {0, 0, 0, 0, this_node});
+      network_send(02, payload_t {0, 0, 0, 0, this_node});
+      network_send(03, payload_t {0, 0, 0, 0, this_node});
     }
     else if (command == "start\n") {
       Serial.println("start -> 01");
       network_send(01, payload_t {1, 255, 255, 1, this_node});
+      network_send(02, payload_t {1, 255, 255, 1, this_node});
+      network_send(03, payload_t {1, 255, 255, 1, this_node});
     }
     else if (command == "stop\n") {
       Serial.println("stop -> 01");
       network_send(01, payload_t {2, 0, 0, 0, this_node});
+      network_send(02, payload_t {2, 0, 0, 0, this_node});
+      network_send(03, payload_t {2, 0, 0, 0, this_node});
     }
     else {
       Serial.print("UNKNOWN COMMAND: ");
@@ -122,12 +133,12 @@ void joystick() {
     if (right_motor < 0) {
       right_motor = 0;
     }
-    Serial.print("direction: ");
+    /*Serial.print("direction: ");
     Serial.print(driveDirection);
     Serial.print("  left_motor: ");
     Serial.print(left_motor);
     Serial.print("  right_motor: ");
-    Serial.println(right_motor);
+    Serial.println(right_motor);*/
     network_send(01, payload_t {1, left_motor, right_motor, driveDirection, this_node});
 
     tTime = millis();
