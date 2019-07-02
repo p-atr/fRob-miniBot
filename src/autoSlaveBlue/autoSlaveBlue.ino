@@ -21,7 +21,7 @@ RF24 radio(7, 8);                   // nRF24L01(+) radio attached using Getting 
 
 RF24Network network(radio);         // Network uses that radio
 
-const uint16_t this_node = 02;      // Address of our node in Octal format
+const uint16_t this_node = 03;      // Address of our node in Octal format
 const uint16_t master = 00;         // Address of the other node in Octal format
 
 struct payload_t {                  // Structure of our payload
@@ -47,7 +47,7 @@ void setup(void) {
   network.begin(/*channel*/ 90, /*node address*/ this_node);
 
   FastLED.addLeds<WS2812B, 4, GRB>(leds, 7);
-  setColor(red);
+  setColor(blue);
 
   //motor_l
   pinMode(5, OUTPUT);
@@ -175,6 +175,7 @@ void loop() {
   if (isColliding()) {
     drive_forward(0, 0);
     drive_backwards(0, right_speed);
+    delay(80);
   } else {
     if (driving) {
       drive_forward(left_speed, right_speed);

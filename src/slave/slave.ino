@@ -189,7 +189,7 @@ void loop() {
     if(color >= 0){
         network_send(00, payload_t {4, color, 0, 0, this_node});
     }
-    drive_backwards(0, right_speed);
+    //drive_backwards(0, right_speed);
     
   } else {
     if(driveMode == 0){
