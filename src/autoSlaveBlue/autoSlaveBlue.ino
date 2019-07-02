@@ -11,17 +11,17 @@ NewPing sonar(A2, A3, 30);
 #define CLOCK_PIN 13
 CRGB leds[NUM_LEDS];
 //define colors
-int rainbow[7][3] = {{255,0,0},{170,85,0},{85,170,0},{0,255,0},{0,170,85},{0,85,170},{0,0,255}};
-int black[7][3] = {{0,0,0},{0,0,0},{0,0,0},{0,0,0},{0,0,0},{0,0,0},{0,0,0}};
-int red[7][3] = {{255,0,0},{255,0,0},{255,0,0},{255,0,0},{255,0,0},{255,0,0},{255,0,0}};
-int green[7][3] = {{0,255,0},{0,255,0},{0,255,0},{0,255,0},{0,255,0},{0,255,0},{0,255,0}};
-int blue[7][3] = {{0,0,255},{0,0,255},{0,0,255},{0,0,255},{0,0,255},{0,0,255},{0,0,255}};
+int rainbow[7][3] = {{255, 0, 0}, {170, 85, 0}, {85, 170, 0}, {0, 255, 0}, {0, 170, 85}, {0, 85, 170}, {0, 0, 255}};
+int black[7][3] = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
+int red[7][3] = {{255, 0, 0}, {255, 0, 0}, {255, 0, 0}, {255, 0, 0}, {255, 0, 0}, {255, 0, 0}, {255, 0, 0}};
+int green[7][3] = {{0, 255, 0}, {0, 255, 0}, {0, 255, 0}, {0, 255, 0}, {0, 255, 0}, {0, 255, 0}, {0, 255, 0}};
+int blue[7][3] = {{0, 0, 255}, {0, 0, 255}, {0, 0, 255}, {0, 0, 255}, {0, 0, 255}, {0, 0, 255}, {0, 0, 255}};
 
 RF24 radio(7, 8);                   // nRF24L01(+) radio attached using Getting Started board
 
 RF24Network network(radio);         // Network uses that radio
 
-const uint16_t this_node = 03;      // Address of our node in Octal format
+const uint16_t this_node = 02;      // Address of our node in Octal format
 const uint16_t master = 00;         // Address of the other node in Octal format
 
 struct payload_t {                  // Structure of our payload
@@ -36,6 +36,7 @@ int normSpeed = 255;
 int minDist = 15;
 bool driving = true;
 int left_speed = 255, right_speed = 255;
+bool anim = false;
 
 void setup(void) {
   Serial.begin(115200);
@@ -46,7 +47,7 @@ void setup(void) {
   network.begin(/*channel*/ 90, /*node address*/ this_node);
 
   FastLED.addLeds<WS2812B, 4, GRB>(leds, 7);
-  setColor(blue);
+  setColor(red);
 
   //motor_l
   pinMode(5, OUTPUT);
@@ -77,7 +78,6 @@ void network_receive() {
       left_speed = payload.left_speed;
       right_speed = payload.right_speed;
       driving = true;
-      setColor(blue);
     }
     else if (payload.id == 2) {
       driving = false;
@@ -86,6 +86,10 @@ void network_receive() {
     else if (payload.id == 3) {
       driving = false;
       setColor(green);
+    }
+    else if (payload.id == 5) {
+      driving = true;
+      anim = true;
     }
     else {
       Serial.print("UNKNOWN PACKET FROM NODE #");
@@ -140,11 +144,26 @@ void network_send(uint16_t node, payload_t localpayload) {
   }
 }
 
-void setColor(int colors[7][3]){
-  for(int i = 0; i < NUM_LEDS; i++){
-    leds[i] = CRGB(colors[i][0],colors[i][1],colors[i][2]);
+void setColor(int colors[7][3]) {
+  for (int i = 0; i < NUM_LEDS; i++) {
+    leds[i] = CRGB(colors[i][0], colors[i][1], colors[i][2]);
   }
   FastLED.show();
+}
+
+int j = 0;
+int s = 0;
+void animateColor(int colors[7][3]) {
+  if (anim) {
+    if (millis() >= s + 100) {
+      j++;
+      for (int i = 0; i < NUM_LEDS; i++) {
+        leds[i] = CRGB(colors[(i + j) % NUM_LEDS][0], colors[(i + j) % NUM_LEDS][1], colors[(i + j) % NUM_LEDS][2]);
+      }
+      FastLED.show();
+      s = millis();
+    }
+  }
 }
 
 void loop() {
@@ -152,11 +171,12 @@ void loop() {
   network_receive();
   updateSensors();
 
-  if(isColliding()){
+  animateColor(rainbow);
+  if (isColliding()) {
     drive_forward(0, 0);
     drive_backwards(0, right_speed);
   } else {
-    if(driving){
+    if (driving) {
       drive_forward(left_speed, right_speed);
     } else {
       drive_forward(0, 0);

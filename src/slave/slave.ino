@@ -3,6 +3,7 @@
 #include <SPI.h>
 #include <NewPing.h>
 #include <Wire.h>
+#include <FastLED.h>
 #include "veml6040.h"
 VEML6040 RGBWSensor;
 NewPing sonar(A2, A3, 30);
@@ -22,6 +23,11 @@ struct payload_t {                  // Structure of our payload
   unsigned long node;
 };
 
+bool anim = false;
+CRGB leds[7];
+//define colors
+int rainbow[7][3] = {{255, 0, 0}, {170, 85, 0}, {85, 170, 0}, {0, 255, 0}, {0, 170, 85}, {0, 85, 170}, {0, 0, 255}};
+
 void veml_setup() {
   Wire.begin();
   if(!RGBWSensor.begin()) {
@@ -39,6 +45,8 @@ void setup(void) {
   radio.begin();
   network.begin(/*channel*/ 90, /*node address*/ this_node);
   veml_setup();
+
+  FastLED.addLeds<WS2812B, 4, GRB>(leds, 7);
 
   //motor_l
   pinMode(5, OUTPUT);
@@ -80,6 +88,10 @@ void network_receive() {
     else if (payload.id == 2) {
       driveMode = 2;
     }
+    else if (payload.id == 5) {
+      driveMode = 0;
+      anim = true;
+    }
     else {
       Serial.print("UNKNOWN PACKET FROM NODE #");
       Serial.println(payload.node);
@@ -99,9 +111,9 @@ void updateUltrasound() {
   //Serial.println(dist);
 }
 
-int colorLimit = 800;
+int colorLimit = 10000;
 int updateColorsensor() {
-  if(RGBWSensor.getRed() > RGBWSensor.getGreen() && RGBWSensor.getRed() > RGBWSensor.getBlue() && RGBWSensor.getRed() > colorLimit+200){
+  if(RGBWSensor.getRed() > RGBWSensor.getGreen() && RGBWSensor.getRed() > RGBWSensor.getBlue() && RGBWSensor.getRed() > colorLimit+2000){
     return 0;
   } else if (RGBWSensor.getGreen() > RGBWSensor.getRed() && RGBWSensor.getGreen() > RGBWSensor.getBlue() && RGBWSensor.getGreen() > colorLimit) {
     return 1;
@@ -122,6 +134,21 @@ bool isColliding() {
     return true;
   }
   return false;
+}
+
+int j = 0;
+int s = 0;
+void animateColor(int colors[7][3]) {
+  if (anim) {
+    if (millis() >= s + 100) {
+      j++;
+      for (int i = 0; i < 7; i++) {
+        leds[i] = CRGB(colors[(i + j) % 7][0], colors[(i + j) % 7][1], colors[(i + j) % 7][2]);
+      }
+      FastLED.show();
+      s = millis();
+    }
+  }
 }
 
 //DRIVEMODES
