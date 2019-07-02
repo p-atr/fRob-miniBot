@@ -101,7 +101,7 @@ void updateUltrasound() {
 
 int colorLimit = 800;
 int updateColorsensor() {
-  if(RGBWSensor.getRed() > RGBWSensor.getGreen() && RGBWSensor.getRed() > RGBWSensor.getBlue() && RGBWSensor.getRed() > colorLimit){
+  if(RGBWSensor.getRed() > RGBWSensor.getGreen() && RGBWSensor.getRed() > RGBWSensor.getBlue() && RGBWSensor.getRed() > colorLimit+200){
     return 0;
   } else if (RGBWSensor.getGreen() > RGBWSensor.getRed() && RGBWSensor.getGreen() > RGBWSensor.getBlue() && RGBWSensor.getGreen() > colorLimit) {
     return 1;
