@@ -66,7 +66,8 @@ void network_receive() {
       if (payload.left_speed == 0) {
         network_send(2, payload_t {3, 0, 0, 0, this_node});
       } else if (payload.left_speed == 2) {
-        network_send(3, payload_t {3, 0, 0, 0, this_node});
+        network_send(3, payload_t {3, 0, 0, 0, this_node});.
+        
       }
       
     }
@@ -84,19 +85,19 @@ void command_handler() {
     Serial.setTimeout(2);
     command = Serial.readString();
     if (command == "ping\n") {
-      Serial.println("ping -> 01");
+      Serial.println("-> ping");
       network_send(01, payload_t {0, 0, 0, 0, this_node});
       network_send(02, payload_t {0, 0, 0, 0, this_node});
       network_send(03, payload_t {0, 0, 0, 0, this_node});
     }
     else if (command == "start\n") {
-      Serial.println("start -> 01");
+      Serial.println("-> start");
       network_send(01, payload_t {1, 255, 255, 1, this_node});
       network_send(02, payload_t {1, 255, 255, 1, this_node});
       network_send(03, payload_t {1, 255, 255, 1, this_node});
     }
     else if (command == "stop\n") {
-      Serial.println("stop -> 01");
+      Serial.println("-> stop");
       network_send(01, payload_t {2, 0, 0, 0, this_node});
       network_send(02, payload_t {2, 0, 0, 0, this_node});
       network_send(03, payload_t {2, 0, 0, 0, this_node});
