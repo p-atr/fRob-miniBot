@@ -102,6 +102,12 @@ void command_handler() {
       network_send(02, payload_t {2, 0, 0, 0, this_node});
       network_send(03, payload_t {2, 0, 0, 0, this_node});
     }
+    else if (command == "party\n") {
+      Serial.println("party!!!");
+      network_send(01, payload_t {5, 0, 0, 0, this_node});
+      network_send(02, payload_t {5, 0, 0, 0, this_node});
+      network_send(03, payload_t {5, 0, 0, 0, this_node});
+    }
     else {
       Serial.print("UNKNOWN COMMAND: ");
       Serial.println(command);
@@ -111,7 +117,7 @@ void command_handler() {
 
 
 void joystick() {
-  if (millis() >= tTime + 200) {
+  if (millis() >= tTime + 20) {
     int yRaw = analogRead(yAxis);
     int xRaw = analogRead(xAxis);
     bool driveDirection = forward(yRaw);
